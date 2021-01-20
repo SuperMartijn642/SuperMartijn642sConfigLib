@@ -3,6 +3,7 @@ package com.supermartijn642.configlib;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -50,7 +51,7 @@ public class ConfigLib {
     public static class ConfigEvents {
         @SubscribeEvent
         public static void onWorldLoad(WorldEvent.Load e){
-            if(e.getWorld().isRemote() || !(e.getWorld() instanceof World) || ((World)e.getWorld()).getDimensionKey() == World.OVERWORLD)
+            if(e.getWorld().isRemote() || !(e.getWorld() instanceof World) || e.getWorld().getDimension().getType() == DimensionType.OVERWORLD)
                 return;
 
             for(ModConfig config : SYNCABLE_CONFIGS)
