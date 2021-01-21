@@ -6,6 +6,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -70,11 +71,9 @@ public class ConfigLib {
         }
 
         @SubscribeEvent
-        public static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent e){
-            if(e.player.world.isRemote && e.player == ClientProxy.getPlayer()){
-                for(ModConfig config : SYNCABLE_CONFIGS)
-                    config.clearSyncedValues();
-            }
+        public static void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent e){
+            for(ModConfig config : SYNCABLE_CONFIGS)
+                config.clearSyncedValues();
         }
     }
 }
