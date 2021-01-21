@@ -87,4 +87,11 @@ public class ModConfig {
         }
     }
 
+    @Override
+    public String toString(){
+        return "ModConfig{" +
+            "modid='" + modid + '\'' +
+            ", type=" + type +
+            '}';
+    }
 }

@@ -57,7 +57,7 @@ public class ConfigLib {
             if(e.getWorld().isRemote || e.getWorld().provider.getDimensionType() == DimensionType.OVERWORLD)
                 return;
 
-            for(ModConfig config : SYNCABLE_CONFIGS)
+            for(ModConfig config : CONFIGS)
                 config.updateValues(false);
         }
 

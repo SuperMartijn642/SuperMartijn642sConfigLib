@@ -95,7 +95,7 @@ public class ConfigSyncPacket implements IMessage, IMessageHandler<ConfigSyncPac
         for(int i = 0; i < size; i++){
             String path = ByteBufUtils.readUTF8String(buffer);
             Object object;
-            int objectType = buffer.readInt();
+            int objectType = buffer.readByte();
             switch(objectType){
                 case 1:
                     object = buffer.readBoolean();
