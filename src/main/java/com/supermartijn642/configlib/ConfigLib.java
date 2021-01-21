@@ -4,7 +4,6 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -48,6 +47,11 @@ public class ConfigLib {
         return null;
     }
 
+    protected static void clearSyncedValues(){
+        for(ModConfig config : SYNCABLE_CONFIGS)
+            config.clearSyncedValues();
+    }
+
     @Mod.EventBusSubscriber
     public static class ConfigEvents {
         @SubscribeEvent
@@ -64,14 +68,6 @@ public class ConfigLib {
             if(!e.getPlayer().world.isRemote){
                 for(ModConfig config : SYNCABLE_CONFIGS)
                     CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)e.getPlayer()), new ConfigSyncPacket(config));
-            }
-        }
-
-        @SubscribeEvent
-        public static void onClientDisconnect(ClientPlayerNetworkEvent.LoggedOutEvent e){
-            if(e.getPlayer() == ClientProxy.getPlayer()){
-                for(ModConfig config : SYNCABLE_CONFIGS)
-                    config.clearSyncedValues();
             }
         }
     }
