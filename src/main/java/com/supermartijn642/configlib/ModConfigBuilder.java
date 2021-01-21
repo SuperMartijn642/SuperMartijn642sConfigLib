@@ -1,12 +1,10 @@
 package com.supermartijn642.configlib;
 
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -22,11 +20,17 @@ public class ModConfigBuilder {
     private boolean syncWithClient = true;
 
     private final String modid;
+    private final ModContainer modContainer;
     private final ModConfig.Type type;
 
     public ModConfigBuilder(String modid, ModConfig.Type type){
         this.modid = modid;
         this.type = type;
+
+        Optional<? extends ModContainer> optional = ModList.get().getModContainerById(this.modid);
+        if(!optional.isPresent())
+            throw new IllegalArgumentException("can't find mod for modid '" + modid + "'");
+        this.modContainer = optional.get();
     }
 
     public ModConfigBuilder(String modid){
@@ -165,7 +169,9 @@ public class ModConfigBuilder {
         this.build(builder);
         ForgeConfigSpec spec = builder.build();
 
-        ModLoadingContext.get().registerConfig(this.type.forgeType, spec);
+        net.minecraftforge.fml.config.ModConfig forgeConfig =
+            new net.minecraftforge.fml.config.ModConfig(this.type.forgeType, spec, this.modContainer);
+        this.modContainer.addConfig(forgeConfig);
 
         ModConfig config = new ModConfig(this.modid, this.type, this.allValues);
 
