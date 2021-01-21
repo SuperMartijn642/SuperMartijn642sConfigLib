@@ -23,7 +23,7 @@ public class ConfigLib {
     private static final Map<String,Map<ModConfig.Type,ModConfig>> CONFIGS_PER_MOD = new HashMap<>();
     private static final List<ModConfig> SYNCABLE_CONFIGS = new ArrayList<>();
 
-    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("wormhole", "main"), () -> "1", "1"::equals, "1"::equals);
+    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("supermartijn642configlib", "main"), () -> "1", "1"::equals, "1"::equals);
 
     public ConfigLib(){
         CHANNEL.registerMessage(0, ConfigSyncPacket.class, ConfigSyncPacket::encode, ConfigSyncPacket::new, ConfigSyncPacket::handle);
