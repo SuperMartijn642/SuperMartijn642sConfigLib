@@ -37,7 +37,7 @@ public class ModConfigBuilder {
      * Pushes a new category
      * @param category the new category
      */
-    public void push(String category){
+    public ModConfigBuilder push(String category){
         if(category == null)
             throw new IllegalArgumentException("category must not be null");
         if(category.isEmpty())
@@ -45,12 +45,14 @@ public class ModConfigBuilder {
 
         if(this.category.isEmpty())
             this.category = category;
+
+        return this;
     }
 
     /**
      * Pops a category
      */
-    public void pop(){
+    public ModConfigBuilder pop(){
         if(this.category.isEmpty())
             throw new IllegalStateException("no more categories to pop");
 
@@ -59,13 +61,15 @@ public class ModConfigBuilder {
             this.category = "";
         else
             this.category = this.category.substring(0, index);
+
+        return this;
     }
 
     /**
      * Adds a comment to the current category
      * @param comment comment to be added
      */
-    public void categoryComment(String comment){
+    public ModConfigBuilder categoryComment(String comment){
         if(comment == null)
             throw new IllegalArgumentException("comment must not be null");
         if(comment.isEmpty())
@@ -76,27 +80,31 @@ public class ModConfigBuilder {
             throw new IllegalStateException("category " + this.category + " already has a comment");
 
         this.categoryComments.put(this.category, comment);
+
+        return this;
     }
 
     /**
      * Makes the next defined value require a world game before being changed
      */
-    public void gameRestart(){
+    public ModConfigBuilder gameRestart(){
         this.requiresGameRestart = true;
+        return this;
     }
 
     /**
      * Makes the next defined value not be synced with client
      */
-    public void dontSync(){
+    public ModConfigBuilder dontSync(){
         this.syncWithClient = false;
+        return this;
     }
 
     /**
      * Adds a comment to the next defined value
      * @param comment comment to be added
      */
-    public void comment(String comment){
+    public ModConfigBuilder comment(String comment){
         if(comment == null)
             throw new IllegalArgumentException("comment must not be null");
         if(comment.isEmpty())
@@ -105,6 +113,8 @@ public class ModConfigBuilder {
             throw new IllegalStateException("a comment is already specified");
 
         this.comment = comment;
+
+        return this;
     }
 
     public Supplier<Boolean> define(String name, boolean defaultValue){
