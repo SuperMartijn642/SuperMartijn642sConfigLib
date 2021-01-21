@@ -31,7 +31,7 @@ logoFile="supermartijn642configlib.png" #optional
 # A text field displayed in the mod UI
 authors="SuperMartijn642" #optional
 # The description text for the mod (multi line!) (#mandatory)
-description='''TODO'''
+description='''Config Lib makes dealing with config files just a bit easier.'''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.supermartijn642configlib]] #optional
     # the modid of the dependency
