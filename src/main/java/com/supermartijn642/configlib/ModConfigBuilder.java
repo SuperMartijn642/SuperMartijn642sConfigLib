@@ -4,10 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -162,8 +159,8 @@ public class ModConfigBuilder {
     }
 
     public void build(){
-        File file = new File(Minecraft.getMinecraft().mcDataDir, "config/" + this.modid + ".cfg");
-        Configuration configuration = new Configuration(file);
+        File file = new File(Minecraft.getMinecraft().mcDataDir, "config/" + this.modid + '-' + this.type.name().toLowerCase(Locale.ROOT) + ".cfg");
+        Configuration configuration = new Configuration(file, true);
 
         this.build(configuration);
 

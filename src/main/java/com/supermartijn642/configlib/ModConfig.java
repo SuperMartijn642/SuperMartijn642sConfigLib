@@ -54,6 +54,9 @@ public class ModConfig {
 
     protected void updateValues(boolean initialUpdate){
         synchronized(this.threadLock){
+            if(!initialUpdate)
+                this.configuration.load();
+
             if(initialUpdate){
                 for(ModConfigValue<?> value : this.values)
                     value.updateValue(true);
@@ -65,6 +68,9 @@ public class ModConfig {
             valuesToSync.clear();
             for(ModConfigValue<?> value : this.syncableValues)
                 valuesToSync.put(value.getPath(), value.get());
+
+            if(this.configuration.hasChanged())
+                this.configuration.save();
         }
     }
 

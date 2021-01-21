@@ -25,7 +25,7 @@ public abstract class ModConfigValue<T> {
     private T syncedValue;
 
     protected ModConfigValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, T defaultValue){
-        int indexOf = path.lastIndexOf('/');
+        int indexOf = path.lastIndexOf('.');
         this.name = indexOf >= 0 ? path.substring(indexOf + 1) : path;
         this.path = indexOf >= 0 ? path.substring(0, indexOf) : "";
         this.comment = comment == null ? "" : comment;
