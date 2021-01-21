@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Created 11/30/2020 by SuperMartijn642
  */
-class ModConfig {
+public class ModConfig {
 
     public enum Type {
         CLIENT,
