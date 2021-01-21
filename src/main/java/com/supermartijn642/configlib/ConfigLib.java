@@ -21,7 +21,7 @@ public class ConfigLib {
 
     public static final String MODID = "supermartijn642configlib";
     public static final String NAME = "SuperMartijn642's Config Library";
-    public static final String VERSION = "1.0.0";
+    public static final String VERSION = "1.0.1";
 
     private static final List<ModConfig> CONFIGS = new ArrayList<>();
     private static final Map<String,Map<ModConfig.Type,ModConfig>> CONFIGS_PER_MOD = new HashMap<>();
