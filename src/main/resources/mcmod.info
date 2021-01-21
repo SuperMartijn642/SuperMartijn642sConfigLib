@@ -2,7 +2,7 @@
 {
   "modid": "supermartijn642configlib",
   "name": "SuperMartijn642's Config Library",
-  "description": "TODO",
+  "description": "Config Lib makes dealing with config files just a bit easier.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
