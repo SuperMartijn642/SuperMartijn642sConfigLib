@@ -1,0 +1,16 @@
+[
+{
+  "modid": "configlibexamplemod",
+  "name": "SuperMartijn642's Config Lib Example Mod",
+  "description": "An example mod for SuperMartijn642's Config Lib",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["SuperMartijn642"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
