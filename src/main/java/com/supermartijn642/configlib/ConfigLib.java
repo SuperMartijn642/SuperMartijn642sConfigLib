@@ -3,6 +3,7 @@ package com.supermartijn642.configlib;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -53,7 +54,7 @@ public class ConfigLib {
             if(e.getWorld().isRemote() || !(e.getWorld() instanceof World) || ((World)e.getWorld()).getDimensionKey() == World.OVERWORLD)
                 return;
 
-            for(ModConfig config : SYNCABLE_CONFIGS)
+            for(ModConfig config : CONFIGS)
                 config.updateValues(false);
         }
 
@@ -66,8 +67,8 @@ public class ConfigLib {
         }
 
         @SubscribeEvent
-        public static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent e){
-            if(e.getPlayer().world.isRemote && e.getPlayer() == ClientProxy.getPlayer()){
+        public static void onClientDisconnect(ClientPlayerNetworkEvent.LoggedOutEvent e){
+            if(e.getPlayer() == ClientProxy.getPlayer()){
                 for(ModConfig config : SYNCABLE_CONFIGS)
                     config.clearSyncedValues();
             }

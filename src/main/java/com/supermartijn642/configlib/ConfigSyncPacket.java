@@ -83,7 +83,7 @@ public class ConfigSyncPacket {
         for(int i = 0; i < size; i++){
             String path = buffer.readString();
             Object object;
-            int objectType = buffer.readInt();
+            int objectType = buffer.readByte();
             switch(objectType){
                 case 1:
                     object = buffer.readBoolean();
@@ -120,6 +120,8 @@ public class ConfigSyncPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier){
+        contextSupplier.get().setPacketHandled(true);
+
         ModConfig config = ConfigLib.getConfig(this.modid, this.type);
         if(config == null)
             System.out.println("Failed to find config: " + this.modid + "-" + this.type.name().toLowerCase(Locale.ROOT));
