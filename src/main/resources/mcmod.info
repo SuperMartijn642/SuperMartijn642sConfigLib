@@ -1,0 +1,16 @@
+[
+{
+  "modid": "supermartijn642configlib",
+  "name": "SuperMartijn642's Config Library",
+  "description": "TODO",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["SuperMartijn642"],
+  "credits": "",
+  "logoFile": "supermartijn642configlib.png",
+  "screenshots": [],
+  "dependencies": []
+}
+]

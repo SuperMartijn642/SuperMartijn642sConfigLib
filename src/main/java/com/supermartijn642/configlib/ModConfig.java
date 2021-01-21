@@ -1,5 +1,7 @@
 package com.supermartijn642.configlib;
 
+import net.minecraftforge.common.config.Configuration;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,19 +13,14 @@ import java.util.Map;
 class ModConfig {
 
     public enum Type {
-        CLIENT(net.minecraftforge.fml.config.ModConfig.Type.CLIENT),
-        SERVER(net.minecraftforge.fml.config.ModConfig.Type.SERVER),
-        COMMON(net.minecraftforge.fml.config.ModConfig.Type.COMMON);
-
-        public final net.minecraftforge.fml.config.ModConfig.Type forgeType;
-
-        Type(net.minecraftforge.fml.config.ModConfig.Type type){
-            this.forgeType = type;
-        }
+        CLIENT,
+        SERVER,
+        COMMON
     }
 
     private final Object threadLock = new Object();
 
+    private final Configuration configuration;
     private final String modid;
     private final Type type;
     private final Map<String,ModConfigValue<?>> valuesByPath = new HashMap<>();
@@ -33,7 +30,8 @@ class ModConfig {
 
     private final Map<String,Object> valuesToSync = new HashMap<>();
 
-    protected ModConfig(String modid, Type type, List<ModConfigValue<?>> values){
+    protected ModConfig(Configuration configuration, String modid, Type type, List<ModConfigValue<?>> values){
+        this.configuration = configuration;
         this.modid = modid;
         this.type = type;
         this.values = values;

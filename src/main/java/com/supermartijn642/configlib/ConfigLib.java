@@ -1,33 +1,37 @@
 package com.supermartijn642.configlib;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.world.DimensionType;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 import java.util.*;
 
 /**
  * Created 7/7/2020 by SuperMartijn642
  */
-@Mod("supermartijn642configlib")
+@Mod(modid = ConfigLib.MODID, name = ConfigLib.NAME, version = ConfigLib.VERSION, dependencies = ConfigLib.DEPENDENCIES)
 public class ConfigLib {
+
+    public static final String MODID = "scarecrowsterritory";
+    public static final String NAME = "Scarecrow's Territory";
+    public static final String VERSION = "1.0.0";
+    public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2779,)";
 
     private static final List<ModConfig> CONFIGS = new ArrayList<>();
     private static final Map<String,Map<ModConfig.Type,ModConfig>> CONFIGS_PER_MOD = new HashMap<>();
     private static final List<ModConfig> SYNCABLE_CONFIGS = new ArrayList<>();
 
-    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("wormhole", "main"), () -> "1", "1"::equals, "1"::equals);
+    public static SimpleNetworkWrapper channel;
 
     public ConfigLib(){
-        CHANNEL.registerMessage(0, ConfigSyncPacket.class, ConfigSyncPacket::encode, ConfigSyncPacket::new, ConfigSyncPacket::handle);
+        channel = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+        channel.registerMessage(ConfigSyncPacket.class, ConfigSyncPacket.class, 0, Side.CLIENT);
     }
 
     protected static void addConfig(ModConfig config){
@@ -51,7 +55,7 @@ public class ConfigLib {
     public static class ConfigEvents {
         @SubscribeEvent
         public static void onWorldLoad(WorldEvent.Load e){
-            if(e.getWorld().isRemote() || !(e.getWorld() instanceof World) || e.getWorld().getDimension().getType() == DimensionType.OVERWORLD)
+            if(e.getWorld().isRemote || e.getWorld().provider.getDimensionType() == DimensionType.OVERWORLD)
                 return;
 
             for(ModConfig config : SYNCABLE_CONFIGS)
@@ -60,15 +64,15 @@ public class ConfigLib {
 
         @SubscribeEvent
         public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent e){
-            if(!e.getPlayer().world.isRemote){
+            if(!e.player.world.isRemote){
                 for(ModConfig config : SYNCABLE_CONFIGS)
-                    CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)e.getPlayer()), new ConfigSyncPacket(config));
+                    channel.sendTo(new ConfigSyncPacket(config), (EntityPlayerMP)e.player);
             }
         }
 
         @SubscribeEvent
         public static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent e){
-            if(e.getPlayer().world.isRemote && e.getPlayer() == ClientProxy.getPlayer()){
+            if(e.player.world.isRemote && e.player == ClientProxy.getPlayer()){
                 for(ModConfig config : SYNCABLE_CONFIGS)
                     config.clearSyncedValues();
             }

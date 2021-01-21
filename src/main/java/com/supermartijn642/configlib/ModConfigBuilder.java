@@ -1,8 +1,9 @@
 package com.supermartijn642.configlib;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraft.client.Minecraft;
+import net.minecraftforge.common.config.Configuration;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -151,28 +152,24 @@ public class ModConfigBuilder {
     }
 
     public void build(){
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-        this.build(builder);
-        ForgeConfigSpec spec = builder.build();
+        File file = new File(Minecraft.getMinecraft().mcDataDir, "config/" + this.modid + ".cfg");
+        Configuration configuration = new Configuration(file);
 
-        ModLoadingContext.get().registerConfig(this.type.forgeType, spec);
+        this.build(configuration);
 
-        ModConfig config = new ModConfig(this.modid, this.type, this.allValues);
+        ModConfig config = new ModConfig(configuration, this.modid, this.type, this.allValues);
 
         config.updateValues(true);
 
         ConfigLib.addConfig(config);
     }
 
-    private void build(ForgeConfigSpec.Builder builder){
+    private void build(Configuration configuration){
         for(ModConfigValue<?> value : this.allValues)
-            value.build(builder);
+            value.build(configuration);
 
-        for(Map.Entry<String,String> category : this.categoryComments.entrySet()){
-            builder.comment(category.getValue());
-            builder.push(category.getKey());
-            builder.pop();
-        }
+        for(Map.Entry<String,String> category : this.categoryComments.entrySet())
+            configuration.addCustomCategoryComment(category.getKey(), category.getValue());
     }
 
 }

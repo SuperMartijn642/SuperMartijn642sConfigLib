@@ -6,67 +6,30 @@ buildscript {
         maven { url = 'https://plugins.gradle.org/m2'}
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath group: 'com.wynprice.cursemaven', name: 'CurseMaven', version: '2.1.4'
     }
 }
-apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'net.minecraftforge.gradle.forge'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'com.wynprice.cursemaven'
 
-version = '1.0.0-mc1.14'
+version = '1.0.0-mc1.12'
 group = 'com.supermartijn642.configlib' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'supermartijn642configlib'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
 
 minecraft {
-    mappings channel: 'stable', version: '58-1.14.4'
+    version = "1.12.2-14.23.5.2847"
+    runDir = "run"
+
+    mappings = "snapshot_20171003"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            mods {
-                supermartijn642configlib {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            mods {
-                supermartijn642configlib {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            args '--mod', 'supermartijn642configlib', '--all', '--output', file('src/generated/resources/')
-
-            mods {
-                supermartijn642configlib {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
 }
 
 repositories {
@@ -82,14 +45,6 @@ repositories {
     }
 }
 
-dependencies {
-    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
-    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
-    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.14.4-28.2.3'
-
-    // compile against the JEI API but do not include it at runtime
-    compileOnly fg.deobf("mezz.jei:jei-1.14.4:6.0.1.30:api")
-    // at runtime, use the full JEI jar
-    runtimeOnly fg.deobf("mezz.jei:jei-1.14.4:6.0.1.30")
-}
+//sourceSets {
+//    main { output.resourcesDir = output.classesDir }
+//}
