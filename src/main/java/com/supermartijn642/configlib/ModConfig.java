@@ -61,15 +61,10 @@ public class ModConfig {
         return this.type;
     }
 
-    protected void updateValues(boolean initialUpdate){
+    protected void updateValues(){
         synchronized(this.threadLock){
-            if(initialUpdate){
-                for(ModConfigValue<?> value : this.values)
-                    value.updateValue();
-            }else{
-                for(ModConfigValue<?> value : this.updatableValues)
-                    value.updateValue();
-            }
+            for(ModConfigValue<?> value : this.updatableValues)
+                value.updateValue();
 
             valuesToSync.clear();
             for(ModConfigValue<?> value : this.syncableValues)
