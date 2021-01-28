@@ -65,10 +65,10 @@ public class ModConfig {
         synchronized(this.threadLock){
             if(initialUpdate){
                 for(ModConfigValue<?> value : this.values)
-                    value.updateValue(true);
+                    value.updateValue();
             }else{
                 for(ModConfigValue<?> value : this.updatableValues)
-                    value.updateValue(false);
+                    value.updateValue();
             }
 
             valuesToSync.clear();
