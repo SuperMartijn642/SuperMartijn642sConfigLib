@@ -166,8 +166,6 @@ public class ModConfigBuilder {
 
         ModConfig config = new ModConfig(configuration, this.modid, this.type, this.allValues);
 
-        config.updateValues(true);
-
         ConfigLib.addConfig(config);
     }
 

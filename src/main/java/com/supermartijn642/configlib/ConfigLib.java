@@ -73,7 +73,7 @@ public class ConfigLib {
                 return;
 
             for(ModConfig config : CONFIGS)
-                config.updateValues(false);
+                config.updateValues();
         }
 
         @SubscribeEvent

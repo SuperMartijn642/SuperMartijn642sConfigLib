@@ -77,6 +77,8 @@ public abstract class ModConfigValue<T> {
     }
 
     public T get(){
+        if(this.value == null)
+            this.updateValue();
         return this.synced ? this.syncedValue : this.value;
     }
 
