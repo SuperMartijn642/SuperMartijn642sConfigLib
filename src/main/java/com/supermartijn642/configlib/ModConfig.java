@@ -20,6 +20,13 @@ public class ModConfig {
         Type(net.minecraftforge.fml.config.ModConfig.Type type){
             this.forgeType = type;
         }
+
+        public static Type fromForge(net.minecraftforge.fml.config.ModConfig.Type type){
+            for(Type type1 : values())
+                if(type1.forgeType == type)
+                    return type1;
+            return null;
+        }
     }
 
     private final Object threadLock = new Object();

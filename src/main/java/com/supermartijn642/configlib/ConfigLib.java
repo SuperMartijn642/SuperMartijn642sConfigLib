@@ -70,5 +70,11 @@ public class ConfigLib {
                     CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)e.getPlayer()), new ConfigSyncPacket(config));
             }
         }
+
+        @SubscribeEvent
+        public static void onConfigLoad(net.minecraftforge.fml.config.ModConfig.Loading e){
+            ModConfig config = CONFIGS_PER_MOD.get(e.getConfig().getModId()).get(ModConfig.Type.fromForge(e.getConfig().getType()));
+            config.updateValues(true);
+        }
     }
 }
