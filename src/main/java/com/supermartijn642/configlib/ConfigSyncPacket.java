@@ -55,7 +55,7 @@ public class ConfigSyncPacket implements IMessage, IMessageHandler<ConfigSyncPac
             }else if(object instanceof Float){
                 buffer.writeByte(4);
                 buffer.writeFloat((float)object);
-            }else if(object instanceof Enum<?>){
+            }else if(object instanceof Enum<?>){ // TODO fix this
                 byte[] bytes = null;
                 try{
                     ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -76,7 +76,7 @@ public class ConfigSyncPacket implements IMessage, IMessageHandler<ConfigSyncPac
                 }
             }else{
                 System.err.println("Don't know how to write object: " + object.getClass());
-                buffer.writeInt(0);
+                buffer.writeByte(0);
             }
         }
     }

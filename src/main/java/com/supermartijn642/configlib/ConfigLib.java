@@ -24,6 +24,13 @@ public class ConfigLib {
     public static final String VERSION = "1.0.1";
 
     private static final List<ModConfig> CONFIGS = new ArrayList<>();
+    private static final Map<ModConfig.Type,List<ModConfig>> CONFIGS_PER_TYPE = new EnumMap<>(ModConfig.Type.class);
+
+    static{
+        for(ModConfig.Type type : ModConfig.Type.values())
+            CONFIGS_PER_TYPE.put(type, new ArrayList<>());
+    }
+
     private static final Map<String,Map<ModConfig.Type,ModConfig>> CONFIGS_PER_MOD = new HashMap<>();
     private static final List<ModConfig> SYNCABLE_CONFIGS = new ArrayList<>();
 
@@ -40,6 +47,8 @@ public class ConfigLib {
         CONFIGS_PER_MOD.putIfAbsent(config.getModid(), new EnumMap<>(ModConfig.Type.class));
         CONFIGS_PER_MOD.get(config.getModid()).put(config.getType(), config);
 
+        CONFIGS_PER_TYPE.get(config.getType()).add(config);
+
         if(config.getType() == ModConfig.Type.SERVER || config.getType() == ModConfig.Type.COMMON)
             SYNCABLE_CONFIGS.add(config);
     }
@@ -49,6 +58,11 @@ public class ConfigLib {
         if(configs != null)
             return configs.get(type);
         return null;
+    }
+
+    protected static void clearSyncedValues(){
+        for(ModConfig config : SYNCABLE_CONFIGS)
+            config.clearSyncedValues();
     }
 
     @Mod.EventBusSubscriber
@@ -72,8 +86,7 @@ public class ConfigLib {
 
         @SubscribeEvent
         public static void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent e){
-            for(ModConfig config : SYNCABLE_CONFIGS)
-                config.clearSyncedValues();
+            clearSyncedValues();
         }
     }
 }

@@ -19,6 +19,7 @@ public abstract class ModConfigValue<T> {
 
     protected Configuration config;
 
+    private boolean initial = true;
     private T value;
 
     private boolean synced = false;
@@ -41,9 +42,11 @@ public abstract class ModConfigValue<T> {
 
     protected abstract T getValue(String name, String path, T defaultValue, String comment, Configuration configuration);
 
-    protected void updateValue(boolean initialUpdate){
-        if(initialUpdate || !this.requiresGameRestart)
+    protected void updateValue(){
+        if(this.initial || !this.requiresGameRestart){
             this.value = this.getValue(this.name, this.path, this.defaultValue, this.comment, this.config);
+            this.initial = false;
+        }
     }
 
     protected String getPath(){
