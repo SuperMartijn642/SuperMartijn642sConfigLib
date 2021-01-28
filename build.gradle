@@ -36,6 +36,9 @@ minecraft {
                 supermartijn642configlib {
                     source sourceSets.main
                 }
+                configlibexamplemod {
+                    source sourceSets.test
+                }
             }
         }
 
