@@ -72,7 +72,7 @@ public class ConfigLib {
                 return;
 
             for(ModConfig config : CONFIGS)
-                config.updateValues(false);
+                config.updateValues();
         }
 
         @SubscribeEvent
@@ -86,17 +86,17 @@ public class ConfigLib {
         @SubscribeEvent
         public static void onConfigLoadServer(FMLServerAboutToStartEvent e){
             for(ModConfig config : CONFIGS_PER_TYPE.get(ModConfig.Type.SERVER))
-                config.updateValues(true);
+                config.updateValues();
         }
 
         @SubscribeEvent
         public static void onConfigLoadCommon(FMLCommonSetupEvent e){
             for(ModConfig config : CONFIGS_PER_TYPE.get(ModConfig.Type.COMMON))
-                config.updateValues(true);
+                config.updateValues();
 
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
                 for(ModConfig config : CONFIGS_PER_TYPE.get(ModConfig.Type.SERVER))
-                    config.updateValues(true);
+                    config.updateValues();
             });
         }
     }
