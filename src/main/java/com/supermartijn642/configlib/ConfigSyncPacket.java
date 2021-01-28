@@ -71,7 +71,7 @@ public class ConfigSyncPacket {
                 }
             }else{
                 System.err.println("Don't know how to write object: " + object.getClass());
-                buffer.writeInt(0);
+                buffer.writeByte(0);
             }
         }
     }
