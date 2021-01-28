@@ -15,6 +15,7 @@ public abstract class ModConfigValue<T> {
 
     protected ForgeConfigSpec.ConfigValue<T> config;
 
+    private boolean initial = true;
     private T value;
 
     private boolean synced = false;
@@ -39,9 +40,11 @@ public abstract class ModConfigValue<T> {
 
     protected abstract ForgeConfigSpec.ConfigValue<T> build(String path, T defaultValue, ForgeConfigSpec.Builder builder);
 
-    protected void updateValue(boolean initialUpdate){
-        if(initialUpdate || !this.requiresGameRestart)
+    protected void updateValue(){
+        if(this.initial || !this.requiresGameRestart){
             this.value = config.get();
+            this.initial = false;
+        }
     }
 
     protected String getPath(){

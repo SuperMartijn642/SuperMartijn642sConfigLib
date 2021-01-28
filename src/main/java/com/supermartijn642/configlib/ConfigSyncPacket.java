@@ -50,7 +50,7 @@ public class ConfigSyncPacket {
             }else if(object instanceof Float){
                 buffer.writeByte(4);
                 buffer.writeFloat((float)object);
-            }else if(object instanceof Enum<?>){
+            }else if(object instanceof Enum<?>){ // TODO fix this
                 byte[] bytes = null;
                 try{
                     ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -81,7 +81,7 @@ public class ConfigSyncPacket {
         this.type = buffer.readEnumValue(ModConfig.Type.class);
         int size = buffer.readInt();
         for(int i = 0; i < size; i++){
-            String path = buffer.readString();
+            String path = buffer.readString(32767);
             Object object;
             int objectType = buffer.readByte();
             switch(objectType){

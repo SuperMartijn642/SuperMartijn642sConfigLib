@@ -3,10 +3,14 @@ package com.supermartijn642.configlib;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
@@ -20,6 +24,13 @@ import java.util.*;
 public class ConfigLib {
 
     private static final List<ModConfig> CONFIGS = new ArrayList<>();
+    private static final Map<ModConfig.Type,List<ModConfig>> CONFIGS_PER_TYPE = new EnumMap<>(ModConfig.Type.class);
+
+    static{
+        for(ModConfig.Type type : ModConfig.Type.values())
+            CONFIGS_PER_TYPE.put(type, new ArrayList<>());
+    }
+
     private static final Map<String,Map<ModConfig.Type,ModConfig>> CONFIGS_PER_MOD = new HashMap<>();
     private static final List<ModConfig> SYNCABLE_CONFIGS = new ArrayList<>();
 
@@ -34,6 +45,8 @@ public class ConfigLib {
 
         CONFIGS_PER_MOD.putIfAbsent(config.getModid(), new EnumMap<>(ModConfig.Type.class));
         CONFIGS_PER_MOD.get(config.getModid()).put(config.getType(), config);
+
+        CONFIGS_PER_TYPE.get(config.getType()).add(config);
 
         if(config.getType() == ModConfig.Type.SERVER || config.getType() == ModConfig.Type.COMMON)
             SYNCABLE_CONFIGS.add(config);
@@ -71,9 +84,20 @@ public class ConfigLib {
         }
 
         @SubscribeEvent
-        public static void onConfigLoad(net.minecraftforge.fml.config.ModConfig.Loading e){
-            ModConfig config = CONFIGS_PER_MOD.get(e.getConfig().getModId()).get(ModConfig.Type.fromForge(e.getConfig().getType()));
-            config.updateValues(true);
+        public static void onConfigLoadServer(FMLServerAboutToStartEvent e){
+            for(ModConfig config : CONFIGS_PER_TYPE.get(ModConfig.Type.SERVER))
+                config.updateValues(true);
+        }
+
+        @SubscribeEvent
+        public static void onConfigLoadCommon(FMLCommonSetupEvent e){
+            for(ModConfig config : CONFIGS_PER_TYPE.get(ModConfig.Type.COMMON))
+                config.updateValues(true);
+
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+                for(ModConfig config : CONFIGS_PER_TYPE.get(ModConfig.Type.SERVER))
+                    config.updateValues(true);
+            });
         }
     }
 }
