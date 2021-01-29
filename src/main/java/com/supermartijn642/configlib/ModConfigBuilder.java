@@ -1,9 +1,9 @@
 package com.supermartijn642.configlib;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.ModList;
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.file.CommentedFileConfigBuilder;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -20,17 +20,11 @@ public class ModConfigBuilder {
     private boolean syncWithClient = true;
 
     private final String modid;
-    private final ModContainer modContainer;
     private final ModConfig.Type type;
 
     public ModConfigBuilder(String modid, ModConfig.Type type){
         this.modid = modid;
         this.type = type;
-
-        Optional<? extends ModContainer> optional = ModList.get().getModContainerById(this.modid);
-        if(!optional.isPresent())
-            throw new IllegalArgumentException("can't find mod for modid '" + modid + "'");
-        this.modContainer = optional.get();
     }
 
     public ModConfigBuilder(String modid){
@@ -165,28 +159,27 @@ public class ModConfigBuilder {
     }
 
     public void build(){
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-        this.build(builder);
-        ForgeConfigSpec spec = builder.build();
+        File file = new File(new File("."), "config/" + this.modid + '-' + this.type.name().toLowerCase(Locale.ROOT) + ".toml");
+        CommentedFileConfigBuilder builder = CommentedFileConfig.builder(file);
+        CommentedFileConfig configuration = builder.concurrent().build();
 
-        net.minecraftforge.fml.config.ModConfig forgeConfig =
-            new net.minecraftforge.fml.config.ModConfig(this.type.forgeType, spec, this.modContainer);
-        this.modContainer.addConfig(forgeConfig);
+        configuration.load();
 
-        ModConfig config = new ModConfig(this.modid, this.type, this.allValues);
+        this.build(configuration);
+
+        configuration.save();
+
+        ModConfig config = new ModConfig(configuration, this.modid, this.type, this.allValues);
 
         ConfigLib.addConfig(config);
     }
 
-    private void build(ForgeConfigSpec.Builder builder){
+    private void build(CommentedFileConfig config){
         for(ModConfigValue<?> value : this.allValues)
-            value.build(builder);
+            value.build(config);
 
-        for(Map.Entry<String,String> category : this.categoryComments.entrySet()){
-            builder.comment(category.getValue());
-            builder.push(category.getKey());
-            builder.pop();
-        }
+        for(Map.Entry<String,String> category : this.categoryComments.entrySet())
+            config.setComment(category.getKey(), category.getValue());
     }
 
 }

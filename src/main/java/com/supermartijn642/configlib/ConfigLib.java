@@ -4,14 +4,10 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
@@ -82,23 +78,6 @@ public class ConfigLib {
                 for(ModConfig config : SYNCABLE_CONFIGS)
                     CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)e.getPlayer()), new ConfigSyncPacket(config));
             }
-        }
-
-        @SubscribeEvent
-        public static void onConfigLoadServer(FMLServerAboutToStartEvent e){
-            for(ModConfig config : CONFIGS_PER_TYPE.get(ModConfig.Type.SERVER))
-                config.updateValues();
-        }
-
-        @SubscribeEvent
-        public static void onConfigLoadCommon(FMLCommonSetupEvent e){
-            for(ModConfig config : CONFIGS_PER_TYPE.get(ModConfig.Type.COMMON))
-                config.updateValues();
-
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                for(ModConfig config : CONFIGS_PER_TYPE.get(ModConfig.Type.SERVER))
-                    config.updateValues();
-            });
         }
     }
 }

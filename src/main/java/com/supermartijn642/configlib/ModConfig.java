@@ -1,5 +1,7 @@
 package com.supermartijn642.configlib;
 
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,26 +13,14 @@ import java.util.Map;
 public class ModConfig {
 
     public enum Type {
-        CLIENT(net.minecraftforge.fml.config.ModConfig.Type.CLIENT),
-        SERVER(net.minecraftforge.fml.config.ModConfig.Type.SERVER),
-        COMMON(net.minecraftforge.fml.config.ModConfig.Type.COMMON);
-
-        public final net.minecraftforge.fml.config.ModConfig.Type forgeType;
-
-        Type(net.minecraftforge.fml.config.ModConfig.Type type){
-            this.forgeType = type;
-        }
-
-        public static Type fromForge(net.minecraftforge.fml.config.ModConfig.Type type){
-            for(Type type1 : values())
-                if(type1.forgeType == type)
-                    return type1;
-            return null;
-        }
+        CLIENT,
+        SERVER,
+        COMMON
     }
 
     private final Object threadLock = new Object();
 
+    private final CommentedFileConfig configuration;
     private final String modid;
     private final Type type;
     private final Map<String,ModConfigValue<?>> valuesByPath = new HashMap<>();
@@ -40,7 +30,8 @@ public class ModConfig {
 
     private final Map<String,Object> valuesToSync = new HashMap<>();
 
-    protected ModConfig(String modid, Type type, List<ModConfigValue<?>> values){
+    protected ModConfig(CommentedFileConfig configuration, String modid, Type type, List<ModConfigValue<?>> values){
+        this.configuration = configuration;
         this.modid = modid;
         this.type = type;
         this.values = values;
@@ -49,7 +40,7 @@ public class ModConfig {
                 this.updatableValues.add(value);
             if(value.shouldBeSynced())
                 this.syncableValues.add(value);
-            this.valuesByPath.put(value.getPath(), value);
+            this.valuesByPath.put(value.getFullPath(), value);
         }
     }
 
@@ -63,12 +54,14 @@ public class ModConfig {
 
     protected void updateValues(){
         synchronized(this.threadLock){
+            this.configuration.load();
+
             for(ModConfigValue<?> value : this.updatableValues)
                 value.updateValue();
 
             valuesToSync.clear();
             for(ModConfigValue<?> value : this.syncableValues)
-                valuesToSync.put(value.getPath(), value.get());
+                valuesToSync.put(value.getFullPath(), value.get());
         }
     }
 

@@ -50,7 +50,7 @@ public class ConfigSyncPacket {
             }else if(object instanceof Float){
                 buffer.writeByte(4);
                 buffer.writeFloat((float)object);
-            }else if(object instanceof Enum<?>){ // TODO fix this
+            }else if(object instanceof Enum<?>){
                 byte[] bytes = null;
                 try{
                     ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -99,6 +99,7 @@ public class ConfigSyncPacket {
                     break;
                 case 5:
                     byte[] bytes = new byte[buffer.readInt()];
+                    buffer.readBytes(bytes);
                     try{
                         ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(bytes));
                         object = (Enum<?>)stream.readObject();
