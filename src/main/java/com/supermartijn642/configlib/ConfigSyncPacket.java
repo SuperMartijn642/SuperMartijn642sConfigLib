@@ -60,6 +60,7 @@ public class ConfigSyncPacket {
                     stream.close();
                     bytes = byteStream.toByteArray();
                 }catch(Exception e){
+                    System.err.println("Failed to write enum: " + object.getClass() + "#" + object);
                     e.printStackTrace();
                     buffer.writeInt(0);
                 }
@@ -69,6 +70,7 @@ public class ConfigSyncPacket {
                     buffer.writeBytes(bytes);
                 }
             }else{
+                System.err.println("Don't know how to write object: " + object.getClass());
                 buffer.writeByte(0);
             }
         }
