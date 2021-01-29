@@ -50,7 +50,7 @@ public class ConfigSyncPacket {
             }else if(object instanceof Float){
                 buffer.writeByte(4);
                 buffer.writeFloat((float)object);
-            }else if(object instanceof Enum<?>){ // TODO fix this
+            }else if(object instanceof Enum<?>){
                 byte[] bytes = null;
                 try{
                     ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -60,7 +60,6 @@ public class ConfigSyncPacket {
                     stream.close();
                     bytes = byteStream.toByteArray();
                 }catch(Exception e){
-                    System.err.println("Failed to write enum: " + object.getClass() + "#" + object);
                     e.printStackTrace();
                     buffer.writeInt(0);
                 }
@@ -70,7 +69,6 @@ public class ConfigSyncPacket {
                     buffer.writeBytes(bytes);
                 }
             }else{
-                System.err.println("Don't know how to write object: " + object.getClass());
                 buffer.writeByte(0);
             }
         }
@@ -99,6 +97,7 @@ public class ConfigSyncPacket {
                     break;
                 case 5:
                     byte[] bytes = new byte[buffer.readInt()];
+                    buffer.readBytes(bytes);
                     try{
                         ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(bytes));
                         object = (Enum<?>)stream.readObject();
