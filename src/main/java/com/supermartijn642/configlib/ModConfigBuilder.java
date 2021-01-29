@@ -1,6 +1,5 @@
 package com.supermartijn642.configlib;
 
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;
@@ -159,7 +158,7 @@ public class ModConfigBuilder {
     }
 
     public void build(){
-        File file = new File(Minecraft.getMinecraft().mcDataDir, "config/" + this.modid + '-' + this.type.name().toLowerCase(Locale.ROOT) + ".cfg");
+        File file = new File(new File("."), "config/" + this.modid + '-' + this.type.name().toLowerCase(Locale.ROOT) + ".cfg");
         Configuration configuration = new Configuration(file, true);
 
         this.build(configuration);
