@@ -37,7 +37,7 @@ public class ConfigLib {
     public static SimpleNetworkWrapper channel;
 
     public ConfigLib(){
-        channel = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+        channel = NetworkRegistry.INSTANCE.newSimpleChannel("supermartijnconfig");
         channel.registerMessage(ConfigSyncPacket.class, ConfigSyncPacket.class, 0, Side.CLIENT);
     }
 
