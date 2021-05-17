@@ -43,7 +43,8 @@ public class ModConfigBuilder {
 
         if(this.category.isEmpty())
             this.category = category;
-        this.category += "." + category;
+        else
+            this.category += "." + category;
 
         return this;
     }
