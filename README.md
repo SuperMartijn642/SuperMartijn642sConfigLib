@@ -12,7 +12,7 @@ For more info and downloads, check out the project on [CurseForge](https://www.c
 A config is created using a `ModConfigBuilder`.
 Simply create a new instance using `#ModConfigBuilder(String)` passing in your modid.
 ```java
-   ModConfigBuilder builder = new ModConfigBuilder( "MODID" );
+   ModConfigBuilder builder = new ModConfigBuilder();
 ```
 A value can be added to the config with `ModConfigBuilder#define` which takes a name and a default value.
 For integer and double values a minimum and maximum value are also required.
