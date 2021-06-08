@@ -1,4 +1,6 @@
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Created 1/21/2021 by SuperMartijn642
@@ -12,6 +14,15 @@ public class ConfigLibExampleMod {
     public static final String DEPENDENCIES = "required-after:supermartijn642configlib@[1.0.0,)";
 
     public ConfigLibExampleMod(){
+        ExampleModConfig.booleanValue.get();
+    }
+
+    @Mod.EventBusSubscriber
+    public static class Events {
+        @SubscribeEvent
+        public static void playerDrop(ItemTossEvent e){
+            System.out.println("value: " + ExampleModConfig.booleanValue.get());
+        }
     }
 
 }
