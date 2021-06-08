@@ -10,7 +10,7 @@ For more info and downloads, check out the project on [CurseForge](https://www.c
 
 ### Creating a config:
 A config is created using a `ModConfigBuilder`.
-Simply create a new instance using `#ModConfigBuilder(String)` passing in your modid.
+Simply create a new instance using `#ModConfigBuilder()`.
 ```java
    ModConfigBuilder builder = new ModConfigBuilder();
 ```
