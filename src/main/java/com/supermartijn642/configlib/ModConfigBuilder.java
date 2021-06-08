@@ -2,6 +2,7 @@ package com.supermartijn642.configlib;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfigBuilder;
+import net.minecraftforge.fml.ModLoadingContext;
 
 import java.io.File;
 import java.util.*;
@@ -22,13 +23,35 @@ public class ModConfigBuilder {
     private final String modid;
     private final ModConfig.Type type;
 
+    /**
+     * @deprecated Use {@link #ModConfigBuilder(ModConfig.Type)}
+     */
+    @Deprecated
     public ModConfigBuilder(String modid, ModConfig.Type type){
+        if(modid == null)
+            throw new IllegalArgumentException("modid must not be null!");
+        if(modid.isEmpty())
+            throw new IllegalArgumentException("modid must not be empty!");
+        if(type == null)
+            throw new IllegalArgumentException("type must not be null!");
         this.modid = modid;
         this.type = type;
     }
 
+    /**
+     * @deprecated Use {@link #ModConfigBuilder()}
+     */
+    @Deprecated
     public ModConfigBuilder(String modid){
         this(modid, ModConfig.Type.COMMON);
+    }
+
+    public ModConfigBuilder(ModConfig.Type type){
+        this(ModLoadingContext.get().getActiveNamespace(), type);
+    }
+
+    public ModConfigBuilder(){
+        this(ModLoadingContext.get().getActiveNamespace(), ModConfig.Type.COMMON);
     }
 
     /**
