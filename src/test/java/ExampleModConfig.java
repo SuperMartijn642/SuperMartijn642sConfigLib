@@ -24,7 +24,7 @@ public class ExampleModConfig {
 
     static{
         // construct a new config builder
-        ModConfigBuilder builder = new ModConfigBuilder("configlibexamplemod", ModConfig.Type.COMMON);
+        ModConfigBuilder builder = new ModConfigBuilder(ModConfig.Type.COMMON);
 
 
         // a boolean value
