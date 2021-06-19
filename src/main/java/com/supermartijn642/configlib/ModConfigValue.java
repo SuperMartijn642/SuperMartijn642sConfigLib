@@ -57,10 +57,6 @@ public abstract class ModConfigValue<T> {
         }
     }
 
-    protected String getPath(){
-        return this.path;
-    }
-
     protected String getFullPath(){
         return this.path.isEmpty() ? this.name : this.path + "." + this.name;
     }
@@ -95,6 +91,7 @@ public abstract class ModConfigValue<T> {
     }
 
     public static class BooleanValue extends ModConfigValue<Boolean> {
+
         protected BooleanValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, Boolean defaultValue){
             super(path, comment, requiresGameRestart, syncWithClient, defaultValue);
         }
@@ -119,7 +116,8 @@ public abstract class ModConfigValue<T> {
     }
 
     public static class IntegerValue extends ModConfigValue<Integer> {
-        private int min, max;
+
+        private final int min, max;
 
         protected IntegerValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, Integer defaultValue, int minValue, int maxValue){
             super(path, comment, requiresGameRestart, syncWithClient, defaultValue);
@@ -130,7 +128,7 @@ public abstract class ModConfigValue<T> {
         @Override
         protected boolean validateValue(String name, String path, Integer defaultValue, String comment, CommentedFileConfig configuration){
             Object value = configuration.get(this.getFullPath());
-            return value instanceof Integer && (int)value > this.min && (int)value < this.max;
+            return value instanceof Integer && (int)value >= this.min && (int)value <= this.max;
         }
 
         @Override
@@ -143,12 +141,13 @@ public abstract class ModConfigValue<T> {
         @Override
         protected Integer getValue(String name, String path, Integer defaultValue, String comment, CommentedFileConfig configuration){
             Object value = configuration.get(this.getFullPath());
-            return value instanceof Integer && (int)value > this.min && (int)value < this.max ? (int)value : defaultValue;
+            return value instanceof Integer && (int)value >= this.min && (int)value <= this.max ? (int)value : defaultValue;
         }
     }
 
     public static class FloatingValue extends ModConfigValue<Double> {
-        private double min, max;
+
+        private final double min, max;
 
         protected FloatingValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, Double defaultValue, double minValue, double maxValue){
             super(path, comment, requiresGameRestart, syncWithClient, defaultValue);
@@ -159,7 +158,7 @@ public abstract class ModConfigValue<T> {
         @Override
         protected boolean validateValue(String name, String path, Double defaultValue, String comment, CommentedFileConfig configuration){
             Object value = configuration.get(this.getFullPath());
-            return value instanceof Double && (double)value > this.min && (double)value < this.max;
+            return value instanceof Double && (double)value >= this.min && (double)value <= this.max;
         }
 
         @Override
@@ -172,7 +171,7 @@ public abstract class ModConfigValue<T> {
         @Override
         protected Double getValue(String name, String path, Double defaultValue, String comment, CommentedFileConfig configuration){
             Object value = configuration.get(this.getFullPath());
-            return value instanceof Double && (double)value > this.min && (double)value < this.max ? (double)value : defaultValue;
+            return value instanceof Double && (double)value >= this.min && (double)value <= this.max ? (double)value : defaultValue;
         }
     }
 
