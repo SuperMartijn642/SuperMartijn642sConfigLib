@@ -38,10 +38,6 @@ public class ModConfigBuilder {
         this.type = type;
     }
 
-    /**
-     * @deprecated Use {@link #ModConfigBuilder()}
-     */
-    @Deprecated
     public ModConfigBuilder(String modid){
         this(modid, ModConfig.Type.COMMON);
     }
