@@ -83,6 +83,7 @@ public abstract class ModConfigValue<T> {
     }
 
     public static class BooleanValue extends ModConfigValue<Boolean> {
+
         protected BooleanValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, Boolean defaultValue){
             super(path, comment, requiresGameRestart, syncWithClient, defaultValue);
         }
@@ -94,7 +95,8 @@ public abstract class ModConfigValue<T> {
     }
 
     public static class IntegerValue extends ModConfigValue<Integer> {
-        private int min, max;
+
+        private final int min, max;
 
         protected IntegerValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, Integer defaultValue, int minValue, int maxValue){
             super(path, comment, requiresGameRestart, syncWithClient, defaultValue);
@@ -109,7 +111,8 @@ public abstract class ModConfigValue<T> {
     }
 
     public static class FloatingValue extends ModConfigValue<Double> {
-        private double min, max;
+
+        private final double min, max;
 
         protected FloatingValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, Double defaultValue, double minValue, double maxValue){
             super(path, comment, requiresGameRestart, syncWithClient, defaultValue);
@@ -124,6 +127,7 @@ public abstract class ModConfigValue<T> {
     }
 
     public static class EnumValue<T extends Enum<T>> extends ModConfigValue<T> {
+
         private String[] values;
 
         protected EnumValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, T defaultValue){
