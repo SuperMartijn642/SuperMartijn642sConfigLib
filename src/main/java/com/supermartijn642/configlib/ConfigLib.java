@@ -1,15 +1,15 @@
 package com.supermartijn642.configlib;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
 
 import java.util.*;
 
@@ -62,9 +62,10 @@ public class ConfigLib {
 
     @Mod.EventBusSubscriber
     public static class ConfigEvents {
+
         @SubscribeEvent
         public static void onWorldLoad(WorldEvent.Load e){
-            if(e.getWorld().isClientSide() || !(e.getWorld() instanceof World) || ((World)e.getWorld()).dimension() == World.OVERWORLD)
+            if(e.getWorld().isClientSide() || !(e.getWorld() instanceof Level) || ((Level)e.getWorld()).dimension() == Level.OVERWORLD)
                 return;
 
             for(ModConfig config : CONFIGS)
@@ -75,7 +76,7 @@ public class ConfigLib {
         public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent e){
             if(!e.getPlayer().level.isClientSide){
                 for(ModConfig config : SYNCABLE_CONFIGS)
-                    CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)e.getPlayer()), new ConfigSyncPacket(config));
+                    CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)e.getPlayer()), new ConfigSyncPacket(config));
             }
         }
     }

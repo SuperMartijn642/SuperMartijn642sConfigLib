@@ -48,6 +48,6 @@ description='''Config Lib makes dealing with config files just a bit easier.'''
 [[dependencies.supermartijn642configlib]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16,1.17)"
+    versionRange="[1.17,1.18)"
     ordering="NONE"
     side="BOTH"

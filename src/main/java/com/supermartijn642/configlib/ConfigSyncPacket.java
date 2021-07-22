@@ -1,7 +1,7 @@
 package com.supermartijn642.configlib;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,11 +27,11 @@ public class ConfigSyncPacket {
         this.values.putAll(config.getValuesToSync());
     }
 
-    protected ConfigSyncPacket(PacketBuffer buffer){
+    protected ConfigSyncPacket(FriendlyByteBuf buffer){
         this.decode(buffer);
     }
 
-    protected void encode(PacketBuffer buffer){
+    protected void encode(FriendlyByteBuf buffer){
         buffer.writeUtf(this.modid);
         buffer.writeEnum(this.type);
         buffer.writeInt(this.values.size());
@@ -76,7 +76,7 @@ public class ConfigSyncPacket {
         }
     }
 
-    private void decode(PacketBuffer buffer){
+    private void decode(FriendlyByteBuf buffer){
         this.modid = buffer.readUtf();
         this.type = buffer.readEnum(ModConfig.Type.class);
         int size = buffer.readInt();
