@@ -2,10 +2,10 @@ package com.supermartijn642.configlib;
 
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
+import org.apache.commons.io.serialization.ValidatingObjectInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Locale;
@@ -79,6 +79,11 @@ public class ConfigSyncPacket {
     private void decode(PacketBuffer buffer){
         this.modid = buffer.readString();
         this.type = buffer.readEnumValue(ModConfig.Type.class);
+        ModConfig config = ConfigLib.getConfig(this.modid, this.type);
+        if(config == null){
+            System.out.println("Failed to find config: " + this.modid + "-" + this.type.name().toLowerCase(Locale.ROOT));
+            return;
+        }
         int size = buffer.readInt();
         for(int i = 0; i < size; i++){
             String path = buffer.readString(32767);
@@ -101,7 +106,8 @@ public class ConfigSyncPacket {
                     byte[] bytes = new byte[buffer.readInt()];
                     buffer.readBytes(bytes);
                     try{
-                        ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(bytes));
+                        ValidatingObjectInputStream stream = new ValidatingObjectInputStream(new ByteArrayInputStream(bytes));
+                        config.getExpectedValueTypes().forEach(stream::accept);
                         object = (Enum<?>)stream.readObject();
                     }catch(Exception e){
                         System.err.println("Failed to decode enum value:");

@@ -37,7 +37,7 @@ public class ConfigLib {
         CHANNEL.registerMessage(0, ConfigSyncPacket.class, ConfigSyncPacket::encode, ConfigSyncPacket::new, ConfigSyncPacket::handle);
     }
 
-    protected static void addConfig(ModConfig config){
+    protected static synchronized void addConfig(ModConfig config){
         CONFIGS.add(config);
 
         CONFIGS_PER_MOD.putIfAbsent(config.getModid(), new EnumMap<>(ModConfig.Type.class));
@@ -49,7 +49,7 @@ public class ConfigLib {
             SYNCABLE_CONFIGS.add(config);
     }
 
-    protected static ModConfig getConfig(String modid, ModConfig.Type type){
+    protected static synchronized ModConfig getConfig(String modid, ModConfig.Type type){
         Map<ModConfig.Type,ModConfig> configs = CONFIGS_PER_MOD.get(modid);
         if(configs != null)
             return configs.get(type);
