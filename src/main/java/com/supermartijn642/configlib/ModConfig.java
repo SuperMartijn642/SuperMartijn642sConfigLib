@@ -2,10 +2,7 @@ package com.supermartijn642.configlib;
 
 import net.minecraftforge.common.config.Configuration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created 11/30/2020 by SuperMartijn642
@@ -27,6 +24,7 @@ public class ModConfig {
     private final List<ModConfigValue<?>> values;
     private final List<ModConfigValue<?>> updatableValues = new ArrayList<>();
     private final List<ModConfigValue<?>> syncableValues = new ArrayList<>();
+    private final Set<Class<?>> expectedValueTypes = new LinkedHashSet<>();
 
     private final Map<String,Object> valuesToSync = new HashMap<>();
 
@@ -38,8 +36,10 @@ public class ModConfig {
         for(ModConfigValue<?> value : values){
             if(!value.isGameRestartRequired())
                 this.updatableValues.add(value);
-            if(value.shouldBeSynced())
+            if(value.shouldBeSynced()){
                 this.syncableValues.add(value);
+                this.expectedValueTypes.add(value.getValueType());
+            }
             this.valuesByPath.put(value.getPath(), value);
         }
     }
@@ -83,6 +83,14 @@ public class ModConfig {
             for(ModConfigValue<?> value : this.syncableValues)
                 value.clearSyncedValue();
         }
+    }
+
+    /**
+     * @return a list of classes that are expected to be received in order to
+     * sync this config's values
+     */
+    public Set<Class<?>> getExpectedValueTypes(){
+        return this.expectedValueTypes;
     }
 
     @Override

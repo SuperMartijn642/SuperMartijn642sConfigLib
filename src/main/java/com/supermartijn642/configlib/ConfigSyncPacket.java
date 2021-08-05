@@ -8,10 +8,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
+import org.apache.commons.io.serialization.ValidatingObjectInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Locale;
@@ -91,6 +91,11 @@ public class ConfigSyncPacket implements IMessage, IMessageHandler<ConfigSyncPac
             return;
         }
         this.type = ModConfig.Type.values()[typeIndex];
+        ModConfig config = ConfigLib.getConfig(this.modid, this.type);
+        if(config == null){
+            System.out.println("Failed to find config: " + this.modid + "-" + this.type.name().toLowerCase(Locale.ROOT));
+            return;
+        }
         int size = buffer.readInt();
         for(int i = 0; i < size; i++){
             String path = ByteBufUtils.readUTF8String(buffer);
@@ -113,7 +118,8 @@ public class ConfigSyncPacket implements IMessage, IMessageHandler<ConfigSyncPac
                     byte[] bytes = new byte[buffer.readInt()];
                     buffer.readBytes(bytes);
                     try{
-                        ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(bytes));
+                        ValidatingObjectInputStream stream = new ValidatingObjectInputStream(new ByteArrayInputStream(bytes));
+                        config.getExpectedValueTypes().forEach(stream::accept);
                         object = (Enum<?>)stream.readObject();
                     }catch(Exception e){
                         System.err.println("Failed to decode enum value:");

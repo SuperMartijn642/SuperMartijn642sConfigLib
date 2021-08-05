@@ -10,6 +10,7 @@ import java.util.Locale;
  */
 public abstract class ModConfigValue<T> {
 
+    private final Class<T> type;
     private final String name;
     private final String path;
     private final String comment;
@@ -25,7 +26,8 @@ public abstract class ModConfigValue<T> {
     private boolean synced = false;
     private T syncedValue;
 
-    protected ModConfigValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, T defaultValue){
+    protected ModConfigValue(Class<T> type, String path, String comment, boolean requiresGameRestart, boolean syncWithClient, T defaultValue){
+        this.type = type;
         int indexOf = path.lastIndexOf('.');
         this.name = indexOf >= 0 ? path.substring(indexOf + 1) : path;
         this.path = indexOf >= 0 ? path.substring(0, indexOf) : "";
@@ -82,10 +84,14 @@ public abstract class ModConfigValue<T> {
         return this.synced ? this.syncedValue : this.value;
     }
 
+    public Class<T> getValueType(){
+        return this.type;
+    }
+
     public static class BooleanValue extends ModConfigValue<Boolean> {
 
         protected BooleanValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, Boolean defaultValue){
-            super(path, comment, requiresGameRestart, syncWithClient, defaultValue);
+            super(Boolean.class, path, comment, requiresGameRestart, syncWithClient, defaultValue);
         }
 
         @Override
@@ -99,7 +105,7 @@ public abstract class ModConfigValue<T> {
         private final int min, max;
 
         protected IntegerValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, Integer defaultValue, int minValue, int maxValue){
-            super(path, comment, requiresGameRestart, syncWithClient, defaultValue);
+            super(Integer.class, path, comment, requiresGameRestart, syncWithClient, defaultValue);
             this.min = minValue;
             this.max = maxValue;
         }
@@ -115,7 +121,7 @@ public abstract class ModConfigValue<T> {
         private final double min, max;
 
         protected FloatingValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, Double defaultValue, double minValue, double maxValue){
-            super(path, comment, requiresGameRestart, syncWithClient, defaultValue);
+            super(Double.class, path, comment, requiresGameRestart, syncWithClient, defaultValue);
             this.min = minValue;
             this.max = maxValue;
         }
@@ -131,7 +137,7 @@ public abstract class ModConfigValue<T> {
         private String[] values;
 
         protected EnumValue(String path, String comment, boolean requiresGameRestart, boolean syncWithClient, T defaultValue){
-            super(path, comment, requiresGameRestart, syncWithClient, defaultValue);
+            super(defaultValue.getDeclaringClass(), path, comment, requiresGameRestart, syncWithClient, defaultValue);
             this.values = Arrays.stream(defaultValue.getClass().getEnumConstants())
                 .map(Enum::name).map(s -> s.toLowerCase(Locale.ROOT)).toArray(String[]::new);
         }
