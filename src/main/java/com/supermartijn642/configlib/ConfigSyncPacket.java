@@ -1,7 +1,7 @@
 package com.supermartijn642.configlib;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 import org.apache.commons.io.serialization.ValidatingObjectInputStream;
 
 import java.io.ByteArrayInputStream;
