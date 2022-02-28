@@ -144,7 +144,7 @@ public abstract class ModConfigValue<T> {
 
         @Override
         protected T getValue(String name, String path, T defaultValue, String comment, Configuration configuration){
-            return Enum.valueOf(defaultValue.getDeclaringClass(), configuration.get(path, name, defaultValue.name().toLowerCase(Locale.ROOT), comment, this.values).getString());
+            return Enum.valueOf(defaultValue.getDeclaringClass(), configuration.get(path, name, defaultValue.name().toLowerCase(Locale.ROOT), comment, this.values).getString().toUpperCase(Locale.ROOT));
         }
     }
 
