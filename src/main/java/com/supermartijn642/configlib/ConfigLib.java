@@ -1,83 +1,116 @@
 package com.supermartijn642.configlib;
 
+import io.netty.buffer.Unpooled;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.*;
 
 /**
  * Created 7/7/2020 by SuperMartijn642
  */
-@Mod("supermartijn642configlib")
-public class ConfigLib {
+public class ConfigLib implements ModInitializer {
 
-    private static final List<ModConfig> CONFIGS = new ArrayList<>();
-    private static final Map<ModConfig.Type,List<ModConfig>> CONFIGS_PER_TYPE = new EnumMap<>(ModConfig.Type.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger("configlib");
 
-    static{
-        for(ModConfig.Type type : ModConfig.Type.values())
-            CONFIGS_PER_TYPE.put(type, new ArrayList<>());
-    }
+    protected static final ResourceLocation CHANNEL_ID = new ResourceLocation("supermartijn642configlib", "sync_configs");
 
-    private static final Map<String,Map<ModConfig.Type,ModConfig>> CONFIGS_PER_MOD = new HashMap<>();
-    private static final List<ModConfig> SYNCABLE_CONFIGS = new ArrayList<>();
-
-    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("supermartijn642configlib", "main"), () -> "1", "1"::equals, "1"::equals);
+    private static final List<ModConfig<?>> CONFIGS = new ArrayList<>();
+    private static final Set<String> CONFIG_NAMES = new HashSet<>();
+    private static final List<ModConfig<?>> SYNCABLE_CONFIGS = new ArrayList<>();
+    private static final Map<String,ModConfig<?>> SYNCABLE_CONFIGS_BY_IDENTIFIER = new HashMap<>();
 
     public ConfigLib(){
-        CHANNEL.registerMessage(0, ConfigSyncPacket.class, ConfigSyncPacket::encode, ConfigSyncPacket::new, ConfigSyncPacket::handle);
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> onLoadGame());
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onPlayerJoinServer(sender));
+        if(isClientEnvironment())
+            ConfigLibClient.registerEventListeners();
     }
 
-    protected static synchronized void addConfig(ModConfig config){
+    @Override
+    public void onInitialize(){
+    }
+
+    public static boolean isClientEnvironment(){
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
+    }
+
+    public static boolean isServerEnvironment(){
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
+    }
+
+    public static File getConfigFolder(){
+        return FabricLoader.getInstance().getConfigDir().toFile();
+    }
+
+    protected static synchronized void addConfig(ModConfig<?> config){
+        if(CONFIG_NAMES.contains(config.getIdentifier()))
+            throw new IllegalStateException("Config '" + config.getIdentifier() + "' for mod '" + config.getModid() + "' already exists!");
+
         CONFIGS.add(config);
-
-        CONFIGS_PER_MOD.putIfAbsent(config.getModid(), new EnumMap<>(ModConfig.Type.class));
-        CONFIGS_PER_MOD.get(config.getModid()).put(config.getType(), config);
-
-        CONFIGS_PER_TYPE.get(config.getType()).add(config);
-
-        if(config.getType() == ModConfig.Type.SERVER || config.getType() == ModConfig.Type.COMMON)
+        CONFIG_NAMES.add(config.getIdentifier());
+        if(config.hasSyncableEntries()){
             SYNCABLE_CONFIGS.add(config);
-    }
-
-    protected static synchronized ModConfig getConfig(String modid, ModConfig.Type type){
-        Map<ModConfig.Type,ModConfig> configs = CONFIGS_PER_MOD.get(modid);
-        if(configs != null)
-            return configs.get(type);
-        return null;
-    }
-
-    protected static void clearSyncedValues(){
-        for(ModConfig config : SYNCABLE_CONFIGS)
-            config.clearSyncedValues();
-    }
-
-    @Mod.EventBusSubscriber
-    public static class ConfigEvents {
-
-        @SubscribeEvent
-        public static void onWorldLoad(WorldEvent.Load e){
-            if(e.getWorld().isClientSide() || !(e.getWorld() instanceof Level) || ((Level)e.getWorld()).dimension() == Level.OVERWORLD)
-                return;
-
-            for(ModConfig config : CONFIGS)
-                config.updateValues();
+            SYNCABLE_CONFIGS_BY_IDENTIFIER.put(config.getIdentifier(), config);
         }
 
-        @SubscribeEvent
-        public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent e){
-            if(!e.getPlayer().level.isClientSide){
-                for(ModConfig config : SYNCABLE_CONFIGS)
-                    CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)e.getPlayer()), new ConfigSyncPacket(config));
-            }
+        config.initialize();
+    }
+
+    protected static void onLoadGame(){
+        CONFIGS.forEach(ModConfig::onJoinGame);
+    }
+
+    protected static void onLeaveGame(){
+        CONFIGS.forEach(ModConfig::onLeaveGame);
+    }
+
+    protected static void onPlayerJoinServer(PacketSender sender){
+        sendSyncConfigPackets(sender);
+    }
+
+    private static void sendSyncConfigPackets(PacketSender sender){
+        for(ModConfig<?> config : SYNCABLE_CONFIGS){
+            FriendlyByteBuf buffer = createSyncedEntriesPacket(config);
+            if(buffer != null)
+                sender.sendPacket(CHANNEL_ID, buffer);
+        }
+    }
+
+    private static FriendlyByteBuf createSyncedEntriesPacket(ModConfig<?> config){
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        buffer.writeUtf(config.getIdentifier());
+        try{
+            config.writeSyncableEntries(buffer);
+        }catch(Exception e){
+            LOGGER.error("Failed to write syncable config entries for config '" + config.getIdentifier() + "' from mod '" + config.getModid() + "'!", e);
+            buffer.release();
+            return null;
+        }
+        return buffer;
+    }
+
+    protected static void handleSyncConfigPacket(FriendlyByteBuf buffer){
+        String identifier = buffer.readUtf();
+        ModConfig<?> config = SYNCABLE_CONFIGS_BY_IDENTIFIER.get(identifier);
+        if(config == null){
+            LOGGER.error("Received config sync packet for unknown config '" + identifier + "'!");
+            return;
+        }
+
+        try{
+            config.readSyncableValues(buffer);
+        }catch(Exception e){
+            LOGGER.error("Failed to read syncable config entries for config '" + config.getIdentifier() + "' from mod '" + config.getModid() + "'!", e);
         }
     }
 }
