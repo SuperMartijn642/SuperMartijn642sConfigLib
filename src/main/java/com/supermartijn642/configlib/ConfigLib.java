@@ -65,7 +65,7 @@ public class ConfigLib {
     public static class ConfigEvents {
         @SubscribeEvent
         public static void onWorldLoad(WorldEvent.Load e){
-            if(e.getWorld().isRemote() || !(e.getWorld() instanceof World) || e.getWorld().getDimension().getType() == DimensionType.OVERWORLD)
+            if(e.getWorld().isClientSide() || !(e.getWorld() instanceof World) || e.getWorld().getDimension().getType() == DimensionType.OVERWORLD)
                 return;
 
             for(ModConfig config : CONFIGS)
@@ -74,7 +74,7 @@ public class ConfigLib {
 
         @SubscribeEvent
         public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent e){
-            if(!e.getPlayer().world.isRemote){
+            if(!e.getPlayer().level.isClientSide){
                 for(ModConfig config : SYNCABLE_CONFIGS)
                     CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)e.getPlayer()), new ConfigSyncPacket(config));
             }
