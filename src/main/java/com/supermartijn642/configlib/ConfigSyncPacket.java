@@ -32,11 +32,11 @@ public class ConfigSyncPacket {
     }
 
     protected void encode(PacketBuffer buffer){
-        buffer.writeString(this.modid);
-        buffer.writeEnumValue(this.type);
+        buffer.writeUtf(this.modid);
+        buffer.writeEnum(this.type);
         buffer.writeInt(this.values.size());
         for(Map.Entry<String,Object> entry : this.values.entrySet()){
-            buffer.writeString(entry.getKey());
+            buffer.writeUtf(entry.getKey());
             Object object = entry.getValue();
             if(object instanceof Boolean){
                 buffer.writeByte(1);
@@ -77,8 +77,8 @@ public class ConfigSyncPacket {
     }
 
     private void decode(PacketBuffer buffer){
-        this.modid = buffer.readString();
-        this.type = buffer.readEnumValue(ModConfig.Type.class);
+        this.modid = buffer.readUtf();
+        this.type = buffer.readEnum(ModConfig.Type.class);
         ModConfig config = ConfigLib.getConfig(this.modid, this.type);
         if(config == null){
             System.out.println("Failed to find config: " + this.modid + "-" + this.type.name().toLowerCase(Locale.ROOT));
@@ -86,7 +86,7 @@ public class ConfigSyncPacket {
         }
         int size = buffer.readInt();
         for(int i = 0; i < size; i++){
-            String path = buffer.readString(32767);
+            String path = buffer.readUtf(32767);
             Object object;
             int objectType = buffer.readByte();
             switch(objectType){
