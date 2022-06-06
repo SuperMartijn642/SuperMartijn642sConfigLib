@@ -70,7 +70,7 @@ public abstract class BaseConfigBuilder<S> extends ConfigBuilder<S> implements I
             if(comment.contains(characters))
                 throw new IllegalArgumentException("Comment must not contain character '" + characters + "'!");
 
-        this.addCategoryComment(this.category.toArray(String[]::new), comment);
+        this.addCategoryComment(this.category.toArray(new String[0]), comment);
         return this;
     }
 

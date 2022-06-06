@@ -4,10 +4,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -85,10 +82,10 @@ public abstract class ConfigBuilder<S> {
 
         List<Pair<String[],String>> categoryComments =
             this.categoryComments.entrySet().stream()
-            .map(entry -> Pair.of(entry.getKey().toArray(String[]::new), entry.getValue()))
-            .collect(Collectors.toList());
+                .map(entry -> Pair.of(entry.getKey().toArray(new String[0]), entry.getValue()))
+                .collect(Collectors.toList());
 
-        ModConfig<S> config = new ModConfig<>(this.modid, relativeLocation, configFile, this.entries.values().stream().toList(), categoryComments);
+        ModConfig<S> config = new ModConfig<>(this.modid, relativeLocation, configFile, new ArrayList<>(this.entries.values()), categoryComments);
         ConfigLib.addConfig(config);
     }
 }
