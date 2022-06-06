@@ -1,4 +1,7 @@
+package com.supermartijn642.configlib.example;
+
 import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -19,10 +22,15 @@ public class ConfigLibExampleMod {
 
     @Mod.EventBusSubscriber
     public static class Events {
+
         @SubscribeEvent
         public static void playerDrop(ItemTossEvent e){
             System.out.println("value: " + ExampleModConfig.booleanValue.get());
         }
-    }
 
+        @SubscribeEvent
+        public static void playerDrop(LivingEvent.LivingJumpEvent e){
+            System.out.println("value: " + ExampleModConfig.booleanValue.get());
+        }
+    }
 }
