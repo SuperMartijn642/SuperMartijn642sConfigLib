@@ -58,7 +58,12 @@ minecraft {
             property "forge.logging.markers", "REGISTRIES"
 
             mods {
-                source sourceSets.main
+                supermartijn642configlib {
+                    source sourceSets.main
+                }
+                configlibexamplemod {
+                    source sourceSets.test
+                }
             }
         }
 
@@ -68,7 +73,12 @@ minecraft {
             property "forge.logging.markers", "REGISTRIES"
 
             mods {
-                source sourceSets.main
+                supermartijn642configlib {
+                    source sourceSets.main
+                }
+                configlibexamplemod {
+                    source sourceSets.test
+                }
             }
         }
 
