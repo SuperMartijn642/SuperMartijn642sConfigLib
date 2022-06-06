@@ -1,5 +1,7 @@
-import com.supermartijn642.configlib.ModConfig;
-import com.supermartijn642.configlib.ModConfigBuilder;
+package com.supermartijn642.configlib.example;
+
+import com.supermartijn642.configlib.api.ConfigBuilders;
+import com.supermartijn642.configlib.api.IConfigBuilder;
 
 import java.util.function.Supplier;
 
@@ -24,7 +26,7 @@ public class ExampleModConfig {
 
     static{
         // construct a new config builder
-        ModConfigBuilder builder = new ModConfigBuilder(ModConfig.Type.COMMON);
+        IConfigBuilder builder = ConfigBuilders.newTomlConfig("configlibexample", null, false);
 
 
         // a boolean value
