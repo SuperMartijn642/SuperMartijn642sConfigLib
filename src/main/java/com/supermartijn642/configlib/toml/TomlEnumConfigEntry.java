@@ -64,6 +64,7 @@ public class TomlEnumConfigEntry<T extends Enum<T>> extends BaseConfigEntry<T,To
         if(length > 512)
             return null;
         byte[] bytes = new byte[length];
+        buffer.get(bytes);
         String name = new String(bytes, StandardCharsets.UTF_8);
         T value = null;
         try{
