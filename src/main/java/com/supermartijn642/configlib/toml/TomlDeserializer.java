@@ -74,8 +74,10 @@ public class TomlDeserializer {
             if(character == -1 || character == '\n')
                 throw new MalformedTomlException("(Line " + reader.getLineIndex() + ":" + reader.getCharIndex() + ") Missing table header ending ']'!");
 
-            if(character == ' ')
+            if(character == ' '){
+                reader.skipChar();
                 continue;
+            }
 
             if(character == ']'){
                 if(keyBuilder.isEmpty())
