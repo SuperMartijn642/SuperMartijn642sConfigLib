@@ -1,51 +1,53 @@
 package com.supermartijn642.configlib;
 
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.file.CommentedFileConfigBuilder;
+import com.supermartijn642.configlib.api.ConfigBuilders;
+import com.supermartijn642.configlib.api.IConfigBuilder;
 import net.minecraftforge.fml.ModLoadingContext;
 
-import java.io.File;
-import java.util.*;
+import java.util.Locale;
 import java.util.function.Supplier;
 
 /**
  * Created 1/19/2021 by SuperMartijn642
+ * @deprecated Use {@link ConfigBuilders} instead
  */
+@Deprecated
 public class ModConfigBuilder {
 
-    private final List<ModConfigValue<?>> allValues = new ArrayList<>();
-    private final Map<String,String> categoryComments = new HashMap<>();
-    private String category = "";
-    private String comment = "";
-    private boolean requiresGameRestart = false;
-    private boolean syncWithClient = true;
+    private final IConfigBuilder configBuilder;
 
-    private final String modid;
-    private final ModConfig.Type type;
+    private ModConfigBuilder(String modid, String name){
+        this.configBuilder = ConfigBuilders.newTomlConfig(modid, name, false);
+    }
 
     /**
-     * @deprecated Use {@link #ModConfigBuilder(ModConfig.Type)}
+     * @deprecated Use {@link ConfigBuilders#newTomlConfig(String, String, boolean)}
      */
     @Deprecated
     public ModConfigBuilder(String modid, ModConfig.Type type){
-        if(modid == null)
-            throw new IllegalArgumentException("modid must not be null!");
-        if(modid.isEmpty())
-            throw new IllegalArgumentException("modid must not be empty!");
-        if(type == null)
-            throw new IllegalArgumentException("type must not be null!");
-        this.modid = modid;
-        this.type = type;
+        this(modid, type.name().toLowerCase(Locale.ROOT));
     }
 
+    /**
+     * @deprecated Use {@link ConfigBuilders#newTomlConfig(String, String, boolean)}
+     */
+    @Deprecated
     public ModConfigBuilder(String modid){
         this(modid, ModConfig.Type.COMMON);
     }
 
+    /**
+     * @deprecated Use {@link ConfigBuilders#newTomlConfig(String, String, boolean)}
+     */
+    @Deprecated
     public ModConfigBuilder(ModConfig.Type type){
         this(ModLoadingContext.get().getActiveNamespace(), type);
     }
 
+    /**
+     * @deprecated Use {@link ConfigBuilders#newTomlConfig(String, String, boolean)}
+     */
+    @Deprecated
     public ModConfigBuilder(){
         this(ModLoadingContext.get().getActiveNamespace(), ModConfig.Type.COMMON);
     }
@@ -54,33 +56,18 @@ public class ModConfigBuilder {
      * Pushes a new category
      * @param category the new category
      */
+    @Deprecated
     public ModConfigBuilder push(String category){
-        if(category == null)
-            throw new IllegalArgumentException("category must not be null");
-        if(category.isEmpty())
-            throw new IllegalArgumentException("category must not be empty");
-
-        if(this.category.isEmpty())
-            this.category = category;
-        else
-            this.category += "." + category;
-
+        this.configBuilder.push(category);
         return this;
     }
 
     /**
      * Pops a category
      */
+    @Deprecated
     public ModConfigBuilder pop(){
-        if(this.category.isEmpty())
-            throw new IllegalStateException("no more categories to pop");
-
-        int index = this.category.lastIndexOf(".");
-        if(index == -1)
-            this.category = "";
-        else
-            this.category = this.category.substring(0, index);
-
+        this.configBuilder.pop();
         return this;
     }
 
@@ -88,34 +75,28 @@ public class ModConfigBuilder {
      * Adds a comment to the current category
      * @param comment comment to be added
      */
+    @Deprecated
     public ModConfigBuilder categoryComment(String comment){
-        if(comment == null)
-            throw new IllegalArgumentException("comment must not be null");
-        if(comment.isEmpty())
-            throw new IllegalArgumentException("comment must not be empty");
-        if(this.category.isEmpty())
-            throw new IllegalStateException("no category pushed");
-        if(this.categoryComments.containsKey(this.category))
-            throw new IllegalStateException("category " + this.category + " already has a comment");
-
-        this.categoryComments.put(this.category, comment);
-
+        this.configBuilder.categoryComment(comment);
         return this;
     }
 
     /**
      * Makes the next defined value require a world game before being changed
      */
+    @Deprecated
     public ModConfigBuilder gameRestart(){
-        this.requiresGameRestart = true;
+        this.configBuilder.gameRestart();
+
         return this;
     }
 
     /**
      * Makes the next defined value not be synced with client
      */
+    @Deprecated
     public ModConfigBuilder dontSync(){
-        this.syncWithClient = false;
+        this.configBuilder.dontSync();
         return this;
     }
 
@@ -123,84 +104,34 @@ public class ModConfigBuilder {
      * Adds a comment to the next defined value
      * @param comment comment to be added
      */
+    @Deprecated
     public ModConfigBuilder comment(String comment){
-        if(comment == null)
-            throw new IllegalArgumentException("comment must not be null");
-        if(comment.isEmpty())
-            throw new IllegalArgumentException("comment must not be empty");
-        if(!this.comment.isEmpty())
-            throw new IllegalStateException("a comment is already specified");
-
-        this.comment = comment;
-
+        this.configBuilder.comment(comment);
         return this;
     }
 
+    @Deprecated
     public Supplier<Boolean> define(String name, boolean defaultValue){
-        ModConfigValue<Boolean> value = new ModConfigValue.BooleanValue(this.getPath(name), this.comment, this.requiresGameRestart, this.syncWithClient, defaultValue);
-        this.allValues.add(value);
-        this.resetValues();
-        return value::get;
+        return this.configBuilder.define(name, defaultValue);
     }
 
+    @Deprecated
     public Supplier<Integer> define(String name, int defaultValue, int minValue, int maxValue){
-        ModConfigValue<Integer> value = new ModConfigValue.IntegerValue(this.getPath(name), this.comment, this.requiresGameRestart, this.syncWithClient, defaultValue, minValue, maxValue);
-        this.allValues.add(value);
-        this.resetValues();
-        return value::get;
+        return this.configBuilder.define(name, defaultValue, minValue, maxValue);
     }
 
+    @Deprecated
     public Supplier<Double> define(String name, double defaultValue, double minValue, double maxValue){
-        ModConfigValue<Double> value = new ModConfigValue.FloatingValue(this.getPath(name), this.comment, this.requiresGameRestart, this.syncWithClient, defaultValue, minValue, maxValue);
-        this.allValues.add(value);
-        this.resetValues();
-        return value::get;
+        return this.configBuilder.define(name, defaultValue, minValue, maxValue);
     }
 
+    @Deprecated
     public <T extends Enum<T>> Supplier<T> define(String name, T defaultValue){
-        ModConfigValue<T> value = new ModConfigValue.EnumValue<>(this.getPath(name), this.comment, this.requiresGameRestart, this.syncWithClient, defaultValue);
-        this.allValues.add(value);
-        this.resetValues();
-        return value::get;
+        return this.configBuilder.define(name, defaultValue);
     }
 
-    private String getPath(String name){
-        if(name == null)
-            throw new IllegalArgumentException("name must not be null");
-        if(name.isEmpty())
-            throw new IllegalArgumentException("name must not be empty");
-
-        return (this.category.isEmpty() ? "" : this.category + '.') + name;
-    }
-
-    private void resetValues(){
-        this.requiresGameRestart = false;
-        this.syncWithClient = true;
-        this.comment = "";
-    }
-
+    @Deprecated
     public void build(){
-        File file = new File(new File("."), "config/" + this.modid + '-' + this.type.name().toLowerCase(Locale.ROOT) + ".toml");
-        CommentedFileConfigBuilder builder = CommentedFileConfig.builder(file);
-        CommentedFileConfig configuration = builder.concurrent().build();
-
-        configuration.load();
-
-        this.build(configuration);
-
-        configuration.save();
-
-        ModConfig config = new ModConfig(configuration, this.modid, this.type, this.allValues);
-
-        ConfigLib.addConfig(config);
+        this.configBuilder.build();
     }
-
-    private void build(CommentedFileConfig config){
-        for(ModConfigValue<?> value : this.allValues)
-            value.build(config);
-
-        for(Map.Entry<String,String> category : this.categoryComments.entrySet())
-            config.setComment(category.getKey(), category.getValue());
-    }
-
 }
