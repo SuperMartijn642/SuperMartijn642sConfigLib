@@ -85,9 +85,10 @@ public class TomlDeserializer {
                 break;
             }
 
-            if(character == '\'' || character == '"')
+            if(character == '\'' || character == '"'){
                 keyBuilder.append(this.readString(reader));
-            else if(character == '=' || character == '[')
+                continue;
+            }else if(character == '=' || character == '[')
                 throw new MalformedTomlException("(Line " + reader.getLineIndex() + ":" + reader.getCharIndex() + ") Encountered unexpected character '" + (char)character + "' in table header!");
             else if(character == '.'){
                 if(keyBuilder.isEmpty())
@@ -131,9 +132,10 @@ public class TomlDeserializer {
                 break;
             }
 
-            if(character == '\'' || character == '"')
+            if(character == '\'' || character == '"'){
                 keyBuilder.append(this.readString(reader));
-            else if(character == '[' || character == ']')
+                continue;
+            }else if(character == '[' || character == ']')
                 throw new MalformedTomlException("(Line " + reader.getLineIndex() + ":" + reader.getCharIndex() + ") Encountered unexpected character '" + (char)character + "' in key!");
             else if(character == '.'){
                 if(keyBuilder.isEmpty())
@@ -272,7 +274,7 @@ public class TomlDeserializer {
         // Read the entire number
         while(true){
             int character = reader.peekChar();
-            if(character == -1 || character == '\n' || character == ' ')
+            if(character == -1 || character == '\n' || character == ' ' || character == '\t')
                 break;
 
             if(character == '_'){
@@ -319,7 +321,7 @@ public class TomlDeserializer {
 
     private void readUntilNextContent(BufferedCharReader reader) throws IOException{
         while(reader.peekChar() != -1){
-            if(reader.peekChar() == ' ' || reader.peekChar() == '\n')
+            if(reader.peekChar() == ' ' || reader.peekChar() == '\n' || reader.peekChar() == '\t')
                 reader.skipChar();
             else if(reader.peekChar() == '#'){
                 reader.skipChar();
