@@ -51,7 +51,7 @@ public class ModConfig<S> {
                 this.entriesByPath.put(entry.combinedPath, entry);
                 if(!entry.configEntry.requiresGameRestart())
                     this.updatableEntries.add(entry);
-                if(!isClientSide && entry.configEntry.shouldBeSynced())
+                if(entry.configEntry.shouldBeSynced())
                     this.syncableEntries.add(entry);
             }
         }
@@ -189,7 +189,7 @@ public class ModConfig<S> {
         }
 
         // Try to read the entry's value
-        T value = null;
+        T value;
         try{
             value = entry.configEntry.read(buffer);
         }catch(Exception e){
