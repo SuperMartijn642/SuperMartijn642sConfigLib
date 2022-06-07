@@ -32,7 +32,7 @@ public class ConfigLib {
     public static final Logger LOGGER = LogManager.getLogger("configlib");
 
     protected static final ResourceLocation CHANNEL_ID = new ResourceLocation("supermartijn642configlib", "sync_configs");
-    private static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(CHANNEL_ID.toString());
+    private static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel("sm642:" + CHANNEL_ID.getResourcePath());
 
     private static final List<ModConfig<?>> CONFIGS = new ArrayList<>();
     private static final Set<String> CONFIG_NAMES = new HashSet<>();
