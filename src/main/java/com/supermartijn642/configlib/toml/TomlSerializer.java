@@ -25,7 +25,7 @@ public class TomlSerializer {
     private static void writeElement(BufferedWriter writer, int indentation, String key, TomlElement element) throws IOException{
         // Write comments
         if(element.comment != null)
-            comment(writer, indentation, element.comment);
+            comment(writer, indentation, element.comment.replace("\n","\n#"));
         if(element.valueHint != null)
             comment(writer, indentation, element.valueHint);
 
