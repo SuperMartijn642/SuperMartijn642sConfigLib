@@ -106,7 +106,7 @@ public class JsonConfigFile implements ConfigFile<JsonElement> {
         this.tracking = true;
 
         // Create a new thread to wait for watch service events
-        new Thread(
+        Thread watchThread = new Thread(
             () -> {
                 while(true){
                     WatchKey watchKey;
@@ -134,7 +134,11 @@ public class JsonConfigFile implements ConfigFile<JsonElement> {
                 }
             },
             "Config Lib config file watcher"
-        ).start();
+        );
+        // Make sure the thread doesn't prevent the program from exiting
+        watchThread.setDaemon(true);
+        // Start the file watcher thread
+        watchThread.start();
     }
 
     @Override
