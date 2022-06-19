@@ -14,20 +14,32 @@ public class TomlSerializer {
     protected static void writeTomlTable(BufferedWriter write, TomlTable object) throws IOException{
         // First write non-table elements
         for(Map.Entry<String,TomlElement> element : object.entrySet()){
-            if(!element.getValue().isTable())
-                writeElement(write, 0, element.getKey(), element.getValue());
+            if(!element.getValue().isTable()){
+                // Check if the key contains any spaces
+                String elementKey = element.getKey();
+                if(elementKey.contains(" "))
+                    elementKey = '"' + elementKey + '"';
+                // Write the element
+                writeElement(write, 0, elementKey, element.getValue());
+            }
         }
         // Write tables
         for(Map.Entry<String,TomlElement> element : object.entrySet()){
-            if(element.getValue().isTable())
-                writeElement(write, 0, element.getKey(), element.getValue());
+            if(element.getValue().isTable()){
+                // Check if the key contains any spaces
+                String elementKey = element.getKey();
+                if(elementKey.contains(" "))
+                    elementKey = '"' + elementKey + '"';
+                // Write the element
+                writeElement(write, 0, elementKey, element.getValue());
+            }
         }
     }
 
     private static void writeElement(BufferedWriter writer, int indentation, String key, TomlElement element) throws IOException{
         // Write comments
         if(element.comment != null)
-            comment(writer, indentation, element.comment.replace("\n","\n#"));
+            comment(writer, indentation, element.comment.replace("\n", "\n#"));
         if(element.valueHint != null)
             comment(writer, indentation, element.valueHint);
 
@@ -64,8 +76,14 @@ public class TomlSerializer {
                 writeElement(writer, indentation + 1, element.getKey(), element.getValue());
         // Write table entries
         for(Map.Entry<String,TomlElement> element : object.entrySet())
-            if(element.getValue().isTable())
-                writeElement(writer, indentation + 1, element.getKey(), element.getValue());
+            if(element.getValue().isTable()){
+                // Check if the key contains any spaces
+                String elementKey = element.getKey();
+                if(elementKey.contains(" "))
+                    elementKey = '"' + elementKey + '"';
+                // Write the element
+                writeElement(writer, indentation + 1, key + "." + elementKey, element.getValue());
+            }
     }
 
     private static void writeValue(BufferedWriter writer, int indentation, String key, String valueSerialized) throws IOException{
