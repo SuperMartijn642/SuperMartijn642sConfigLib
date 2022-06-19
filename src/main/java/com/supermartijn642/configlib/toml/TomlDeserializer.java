@@ -97,6 +97,7 @@ public class TomlDeserializer {
                     throw new MalformedTomlException("(Line " + reader.getLineIndex() + ":" + reader.getCharIndex() + ") Encountered unexpected character '" + (char)character + "' in table header!");
                 else
                     key.add(keyBuilder.toString());
+                keyBuilder = new StringBuilder();
             }else if(Character.toString((char)character).matches("[A-Za-z0-9_-]"))
                 keyBuilder.append((char)character);
             else
@@ -144,6 +145,7 @@ public class TomlDeserializer {
                     throw new MalformedTomlException("(Line " + reader.getLineIndex() + ":" + reader.getCharIndex() + ") Encountered unexpected character '" + (char)character + "' in key!");
                 else
                     key.add(keyBuilder.toString());
+                keyBuilder = new StringBuilder();
             }else if(Character.toString((char)character).matches("[A-Za-z0-9_-]"))
                 keyBuilder.append((char)character);
             else
