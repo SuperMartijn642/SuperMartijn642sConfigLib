@@ -58,6 +58,23 @@ public class TomlConfigBuilder extends BaseConfigBuilder<TomlElement> {
     }
 
     @Override
+    public Supplier<Long> define(String key, long defaultValue, long minValue, long maxValue){
+        if(key == null)
+            throw new IllegalArgumentException("Key must not be null!");
+        if(key.isEmpty())
+            throw new IllegalArgumentException("Key must not be empty!");
+        for(String characters : this.getIllegalCharacters())
+            if(key.contains(characters))
+                throw new IllegalArgumentException("Key must not contain character '" + characters + "'!");
+        if(defaultValue < minValue || defaultValue > maxValue)
+            throw new IllegalArgumentException("Default value must be between the minimum and maximum values!");
+
+        TomlLongConfigEntry entry = new TomlLongConfigEntry(defaultValue, minValue, maxValue, this.shouldBeSynced, this.requiresGameRestart, this.isClientOnly, this.isServerOnly, this.comment);
+        this.resetState();
+        return this.addEntry(this.getPath(key), entry);
+    }
+
+    @Override
     public Supplier<Double> define(String key, double defaultValue, double minValue, double maxValue){
         if(key == null)
             throw new IllegalArgumentException("Key must not be null!");
