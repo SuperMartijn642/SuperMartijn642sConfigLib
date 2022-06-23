@@ -110,6 +110,22 @@ public interface IConfigBuilder {
     Supplier<Integer> define(String key, int defaultValue, int minValue, int maxValue);
 
     /**
+     * Creates a long config entry with the given key
+     * @param key          key for the entry
+     * @param defaultValue default value of the entry
+     * @param minValue     minimum value of the entry
+     * @param maxValue     maximum value of the entry
+     * @return a {@link Supplier Supplier&lt;Long&gt;} from which the entry's
+     * value can be obtained
+     * @throws IllegalArgumentException if {@code key} is null or empty or
+     *                                  contains syntax characters for the
+     *                                  config format,
+     *                                  if {@code defaultValue < minValue} or
+     *                                  {@code defaultValue > maxValue}
+     */
+    Supplier<Long> define(String key, long defaultValue, long minValue, long maxValue);
+
+    /**
      * Creates a double config entry with the given key
      * @param key          key for the entry
      * @param defaultValue default value of the entry
