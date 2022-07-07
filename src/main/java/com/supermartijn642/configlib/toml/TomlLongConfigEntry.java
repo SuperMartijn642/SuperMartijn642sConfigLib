@@ -34,7 +34,7 @@ public class TomlLongConfigEntry extends BaseConfigEntry<Long,TomlElement> {
 
     @Override
     public Long deserialize(TomlElement serialized){
-        return serialized.isLong() ? serialized.getAsLong() : null;
+        return serialized.isInteger() ? serialized.getAsInteger() : serialized.isLong() ? serialized.getAsLong() : null;
     }
 
     @Override
