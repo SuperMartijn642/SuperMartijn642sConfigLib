@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 public class ConfigLibClient {
 
     protected static void registerEventListeners(){
-        MinecraftForge.EVENT_BUS.addListener((Consumer<ClientPlayerNetworkEvent.LoggedInEvent>)e -> ConfigLib.onLoadGame());
-        MinecraftForge.EVENT_BUS.addListener((Consumer<ClientPlayerNetworkEvent.LoggedOutEvent>)e -> ConfigLib.onLeaveGame());
+        MinecraftForge.EVENT_BUS.addListener((Consumer<ClientPlayerNetworkEvent.LoggingIn>)e -> ConfigLib.onLoadGame());
+        MinecraftForge.EVENT_BUS.addListener((Consumer<ClientPlayerNetworkEvent.LoggingOut>)e -> ConfigLib.onLeaveGame());
     }
 }
