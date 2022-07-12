@@ -39,8 +39,8 @@ public class ConfigLib {
     public ConfigLib(){
         MinecraftForge.EVENT_BUS.addListener((Consumer<ServerAboutToStartEvent>)e -> onLoadGame());
         MinecraftForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerLoggedInEvent>)e -> {
-            if(e.getPlayer() instanceof ServerPlayer)
-                onPlayerJoinServer((ServerPlayer)e.getPlayer());
+            if(e.getEntity() instanceof ServerPlayer)
+                onPlayerJoinServer((ServerPlayer)e.getEntity());
         });
         if(isClientEnvironment())
             ConfigLibClient.registerEventListeners();
