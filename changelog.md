@@ -1,2 +1,2 @@
-### SuperMartijn642's Config Library 1.1.0
+### SuperMartijn642's Config Library 1.1.6
 - Initial release for Fabric
