@@ -93,21 +93,25 @@ curseforge {
         id = project.curseforge_project_id
         releaseType = project.curseforge_release_type
         project.curseforge_game_versions.split(" ").each it::addGameVersion
+        addGameVersion("Fabric")
         // Point to 'changelog' setting to a the changelog file
         changelog = file("changelog.md")
         changelogType = "markdown"
-        relations {
-            // Required dependencies
-            if (!project.curseforge_required_dependency_ids.isEmpty())
-                project.curseforge_required_dependency_ids.split(" ").each it::requiredDependency
-            // Optional dependencies
-            if (!project.curseforge_optional_dependency_ids.isEmpty())
-                project.curseforge_optional_dependency_ids.split(" ").each it::optionalDependency
+        if (!project.curseforge_required_dependency_ids.isEmpty() || !project.curseforge_optional_dependency_ids.isEmpty()) {
+            relations {
+                // Required dependencies
+                if (!project.curseforge_required_dependency_ids.isEmpty())
+                    project.curseforge_required_dependency_ids.split(" ").each it::requiredDependency
+                // Optional dependencies
+                if (!project.curseforge_optional_dependency_ids.isEmpty())
+                    project.curseforge_optional_dependency_ids.split(" ").each it::optionalDependency
+            }
         }
 
         mainArtifact(jar) {
             displayName = "${project.mod_name} ${project.mod_version} for Fabric ${project.minecraft_suffix.substring(2)}"
         }
+
     }
     options {
         // Don't add project Java version
