@@ -1,5 +1,7 @@
 plugins {
-    id "fabric-loom" version "0.11-SNAPSHOT"
+    id "fabric-loom" version "1.1-SNAPSHOT"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+    id "com.modrinth.minotaur" version "2.+"
 }
 
 version = project.mod_version + "-fabric-" + project.minecraft_suffix
@@ -12,6 +14,9 @@ targetCompatibility = JavaLanguageVersion.of(project.java_target)
 println("Java: " + System.getProperty("java.version") + " JVM: " + System.getProperty("java.vm.version") + "(" + System.getProperty("java.vendor") + ") Arch: " + System.getProperty("os.arch"))
 
 repositories {
+    flatDir {
+        dirs "libs"
+    }
     maven {
         url "https://www.cursemaven.com"
     }
@@ -39,13 +44,32 @@ processResources {
         expand project.properties
     }
 
-    rename "icon.png", "${project.mod_id}.png"
-    rename "modid.accesswidener", "${project.mod_id}.accesswidener"
-    rename "modid.mixins.json", "${project.mod_id}.mixins.json"
+    exclude "**/*.pdn"
+
+    rename "^icon.png\$", "${project.mod_id}.png"
+    rename "^modid.accesswidener\$", "${project.mod_id}.accesswidener"
+    rename "^modid.mixins.json\$", "${project.mod_id}.mixins.json"
 }
 
 loom {
     accessWidenerPath = file("src/main/resources/modid.accesswidener")
+
+    loom {
+        runs {
+            // This adds a new gradle task that runs the datagen API: "gradlew runDatagenClient"
+            datagenClient {
+                inherit client
+                name "Minecraft Datagen"
+                vmArg "-Dfabric-api.datagen"
+                vmArg "-Dfabric-api.datagen.modid=${project.mod_id}"
+                vmArg "-Dfabric-api.datagen.output-dir=${file("src/generated/resources")}"
+                vmArg "-Dfabric-api.datagen.manual-dir=${file("src/main/resources")}"
+
+                ideConfigGenerated = true
+                runDir "build/datagen"
+            }
+        }
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -58,4 +82,74 @@ java {
     // if it is present.
     // If you remove this line, sources will not be generated.
     withSourcesJar()
+}
+
+// CurseGradle settings for uploading to CurseForge
+curseforge {
+    project {
+        // Get the CurseForge token from the environment variables
+        apiKey = System.getenv("CURSEFORGE_TOKEN")
+        // Copy settings from gradle.properties
+        id = project.curseforge_project_id
+        releaseType = project.curseforge_release_type
+        project.curseforge_game_versions.split(" ").each it::addGameVersion
+        // Point to 'changelog' setting to a the changelog file
+        changelog = file("changelog.md")
+        changelogType = "markdown"
+        relations {
+            // Required dependencies
+            if (!project.curseforge_required_dependency_ids.isEmpty())
+                project.curseforge_required_dependency_ids.split(" ").each it::requiredDependency
+            // Optional dependencies
+            if (!project.curseforge_optional_dependency_ids.isEmpty())
+                project.curseforge_optional_dependency_ids.split(" ").each it::optionalDependency
+        }
+
+        mainArtifact(jar) {
+            displayName = "${project.mod_name} ${project.mod_version} for Fabric ${project.minecraft_suffix.substring(2)}"
+        }
+    }
+    options {
+        // Don't add project Java version
+        javaVersionAutoDetect = false
+    }
+}
+
+// Move CurseGradle's tasks from 'upload' to 'publishing'
+project.gradle.taskGraph.whenReady {
+    tasks.stream().filter(task -> task.group.equals "upload").each { task -> task.group = "publishing" }
+}
+
+// Minotaur settings for uploading to Modrinth
+modrinth {
+    // Get the Modrinth token from the environment variables
+    token = System.getenv("MODRINTH_TOKEN")
+    // Copy settings from gradle.properties
+    projectId = project.modrinth_project_id
+    versionNumber = version
+    versionType = project.modrinth_release_type // Can be either 'release', 'alpha', or 'beta'
+    versionName = "${project.mod_name} ${project.mod_version}"
+    gameVersions = project.modrinth_game_versions.split(" ") as List
+    // Convert the changelog file to text
+    changelog = file("changelog.md").text
+    uploadFile = jar // With Loom, this MUST be set to `remapJar` instead of `jar`!
+    loaders = ["fabric"]
+    if (!project.modrinth_required_dependency_ids.isEmpty() && !project.modrinth_optional_dependency_ids.isEmpty()) {
+        dependencies {
+            // Required dependencies
+            if (!project.modrinth_required_dependency_ids.isEmpty())
+                project.modrinth_required_dependency_ids.split(" ").each required::project
+            // Optional dependencies
+            if (!project.modrinth_optional_dependency_ids.isEmpty())
+                project.modrinth_optional_dependency_ids.split(" ").each optional::project
+        }
+    }
+}
+
+// Create a task to upload to both CurseForge and Modrinth
+task publishAll {
+    group "publishing"
+    dependsOn("curseforge", "modrinth")
+    // Also build the file so I have a copy locally
+    dependsOn "build"
 }

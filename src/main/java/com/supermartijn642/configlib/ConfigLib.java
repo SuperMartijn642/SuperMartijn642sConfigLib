@@ -32,8 +32,6 @@ public class ConfigLib implements ModInitializer {
     public ConfigLib(){
         ServerLifecycleEvents.SERVER_STARTING.register(server -> onLoadGame());
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onPlayerJoinServer(sender));
-        if(isClientEnvironment())
-            ConfigLibClient.registerEventListeners();
     }
 
     @Override
