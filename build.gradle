@@ -13,6 +13,9 @@ targetCompatibility = JavaLanguageVersion.of(project.java_target)
 
 println("Java: " + System.getProperty("java.version") + " JVM: " + System.getProperty("java.vm.version") + "(" + System.getProperty("java.vendor") + ") Arch: " + System.getProperty("os.arch"))
 
+// Keep parameter names when compiling
+compileJava.options.compilerArgs.add '-parameters'
+
 repositories {
     flatDir {
         dirs "libs"
@@ -41,7 +44,11 @@ processResources {
     inputs.property "version", project.version
 
     filesMatching(["fabric.mod.json", "modid.mixins.json", "pack.mcmeta"]) {
-        expand project.properties
+        Map<String, ?> copyProperties = project.properties.clone() as Map<String, ?>
+        String modVersion = project.properties.mod_version
+        if (Character.isAlphabetic(modVersion.charAt(modVersion.length() - 1) as int))
+            copyProperties.mod_version = modVersion.substring(0, modVersion.length() - 1) + "-" + modVersion.chars[-1]
+        expand copyProperties
     }
 
     exclude "**/*.pdn"
@@ -113,7 +120,6 @@ curseforge {
         mainArtifact(remapJar) {
             displayName = "${project.mod_name} ${project.mod_version} for Fabric ${project.minecraft_suffix.substring(2)}"
         }
-
     }
     options {
         // Don't add project Java version
