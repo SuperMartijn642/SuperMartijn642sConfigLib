@@ -6,6 +6,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.ExtensionPoint;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -13,6 +16,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,7 +33,7 @@ public class ConfigLib {
     public static final Logger LOGGER = LogManager.getLogger("configlib");
 
     protected static final ResourceLocation CHANNEL_ID = new ResourceLocation("supermartijn642configlib", "sync_configs");
-    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_ID, () -> "1", "1"::equals, "1"::equals);
+    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_ID, ConfigLib::getModVersion, ConfigLib::canConnectWith, ConfigLib::canConnectWith);
 
     private static final List<ModConfig<?>> CONFIGS = new ArrayList<>();
     private static final Set<String> CONFIG_NAMES = new HashSet<>();
@@ -37,6 +41,10 @@ public class ConfigLib {
     private static final Map<String,ModConfig<?>> SYNCABLE_CONFIGS_BY_IDENTIFIER = new HashMap<>();
 
     public ConfigLib(){
+        // Allow connection if there are no syncable configs or if the server has the same mod version
+        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.DISPLAYTEST, () -> Pair.of(ConfigLib::getModVersion, (remoteVersion, isFromServer) -> canConnectWith(remoteVersion)));
+
+        // Register event listeners
         MinecraftForge.EVENT_BUS.addListener((Consumer<FMLServerAboutToStartEvent>)e -> onLoadGame());
         MinecraftForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerLoggedInEvent>)e -> {
             if(e.getPlayer() instanceof ServerPlayerEntity)
@@ -54,6 +62,14 @@ public class ConfigLib {
 
     public static boolean isServerEnvironment(){
         return FMLEnvironment.dist == Dist.DEDICATED_SERVER;
+    }
+
+    public static String getModVersion(){
+        return ModList.get().getModContainerById("supermartijn642configlib").orElseThrow(AssertionError::new).getModInfo().getVersion().toString();
+    }
+
+    public static boolean canConnectWith(String remoteVersion){
+        return SYNCABLE_CONFIGS.isEmpty() || getModVersion().equals(remoteVersion);
     }
 
     public static File getConfigFolder(){
