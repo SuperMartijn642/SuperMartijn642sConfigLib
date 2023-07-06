@@ -7,6 +7,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
+import net.minecraftforge.fml.IExtensionPoint;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -29,7 +32,7 @@ public class ConfigLib {
     public static final Logger LOGGER = LoggerFactory.getLogger("configlib");
 
     protected static final ResourceLocation CHANNEL_ID = new ResourceLocation("supermartijn642configlib", "sync_configs");
-    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_ID, () -> "1", "1"::equals, "1"::equals);
+    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_ID, ConfigLib::getModVersion, ConfigLib::canConnectWith, ConfigLib::canConnectWith);
 
     private static final List<ModConfig<?>> CONFIGS = new ArrayList<>();
     private static final Set<String> CONFIG_NAMES = new HashSet<>();
@@ -37,6 +40,10 @@ public class ConfigLib {
     private static final Map<String,ModConfig<?>> SYNCABLE_CONFIGS_BY_IDENTIFIER = new HashMap<>();
 
     public ConfigLib(){
+        // Allow connection if there are no syncable configs or if the server has the same mod version
+        ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(ConfigLib::getModVersion, (remoteVersion, isFromServer) -> canConnectWith(remoteVersion)));
+
+        // Register event listeners
         MinecraftForge.EVENT_BUS.addListener((Consumer<ServerAboutToStartEvent>)e -> onLoadGame());
         MinecraftForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerLoggedInEvent>)e -> {
             if(e.getEntity() instanceof ServerPlayer)
@@ -54,6 +61,14 @@ public class ConfigLib {
 
     public static boolean isServerEnvironment(){
         return FMLEnvironment.dist == Dist.DEDICATED_SERVER;
+    }
+
+    public static String getModVersion(){
+        return ModList.get().getModContainerById("supermartijn642configlib").orElseThrow().getModInfo().getVersion().toString();
+    }
+
+    public static boolean canConnectWith(String remoteVersion){
+        return SYNCABLE_CONFIGS.isEmpty() || getModVersion().equals(remoteVersion);
     }
 
     public static File getConfigFolder(){
