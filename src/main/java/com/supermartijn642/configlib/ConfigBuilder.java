@@ -16,8 +16,8 @@ public abstract class ConfigBuilder<S> {
     private final String modid, name, extension;
     private final boolean createSubDirectory;
 
-    private final Map<String,ModConfig.Entry<?,S>> entries = new HashMap<>();
-    private final Map<List<String>,String> categoryComments = new HashMap<>();
+    private final Map<String,ModConfig.Entry<?,S>> entries = new LinkedHashMap<>();
+    private final Map<List<String>,String> categoryComments = new LinkedHashMap<>();
     private boolean hasBeenBuild = false;
 
     public ConfigBuilder(String modid, String name, String extension, boolean createSubDirectory){
