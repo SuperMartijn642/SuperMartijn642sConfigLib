@@ -32,7 +32,7 @@ public class ConfigLib {
     public static final Logger LOGGER = LoggerFactory.getLogger("configlib");
 
     protected static final ResourceLocation CHANNEL_ID = new ResourceLocation("supermartijn642configlib", "sync_configs");
-    private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_ID, ConfigLib::getModVersion, ConfigLib::canConnectWith, ConfigLib::canConnectWith);
+    private static SimpleChannel channel;
 
     private static final List<ModConfig<?>> CONFIGS = new ArrayList<>();
     private static final Set<String> CONFIG_NAMES = new HashSet<>();
@@ -52,7 +52,8 @@ public class ConfigLib {
         if(isClientEnvironment())
             ConfigLibClient.registerEventListeners();
 
-        CHANNEL.registerMessage(0, ConfigSyncPacket.class, ConfigLib::createSyncedEntriesPacket, buffer -> handleSyncConfigPacket(buffer), (packet, context) -> context.get().setPacketHandled(true));
+        channel = NetworkRegistry.newSimpleChannel(CHANNEL_ID, ConfigLib::getModVersion, ConfigLib::canConnectWith, ConfigLib::canConnectWith);
+        channel.registerMessage(0, ConfigSyncPacket.class, ConfigLib::createSyncedEntriesPacket, buffer -> handleSyncConfigPacket(buffer), (packet, context) -> context.get().setPacketHandled(true));
     }
 
     public static boolean isClientEnvironment(){
@@ -103,7 +104,7 @@ public class ConfigLib {
 
     private static void sendSyncConfigPackets(ServerPlayer sender){
         for(ModConfig<?> config : SYNCABLE_CONFIGS){
-            CHANNEL.send(PacketDistributor.PLAYER.with(() -> sender), new ConfigSyncPacket(config));
+            channel.send(PacketDistributor.PLAYER.with(() -> sender), new ConfigSyncPacket(config));
         }
     }
 
