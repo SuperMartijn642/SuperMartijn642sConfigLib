@@ -41,7 +41,11 @@ processResources {
     inputs.property "version", project.version
 
     filesMatching(["fabric.mod.json", "modid.mixins.json", "pack.mcmeta"]) {
-        expand project.properties
+        Map<String, ?> copyProperties = project.properties.clone() as Map<String, ?>
+        String modVersion = project.properties.mod_version
+        if (Character.isAlphabetic(modVersion.charAt(modVersion.length() - 1) as int))
+            copyProperties.mod_version = modVersion.substring(0, modVersion.length() - 1) + "+" + modVersion.chars[-1]
+        expand copyProperties
     }
 
     exclude "**/*.pdn"
@@ -113,7 +117,6 @@ curseforge {
         mainArtifact(remapJar) {
             displayName = "${project.mod_name} ${project.mod_version} for Fabric ${project.minecraft_suffix.substring(2)}"
         }
-
     }
     options {
         // Don't add project Java version
@@ -140,7 +143,7 @@ modrinth {
     changelog = file("changelog.md").text
     uploadFile = remapJar // With Loom, this MUST be set to `remapJar` instead of `jar`!
     loaders = ["fabric"]
-    if (!project.modrinth_required_dependency_ids.isEmpty() && !project.modrinth_optional_dependency_ids.isEmpty()) {
+    if (!project.modrinth_required_dependency_ids.isEmpty() || !project.modrinth_optional_dependency_ids.isEmpty()) {
         dependencies {
             // Required dependencies
             if (!project.modrinth_required_dependency_ids.isEmpty())
