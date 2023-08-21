@@ -34,7 +34,9 @@ public class TomlDoubleConfigEntry extends BaseConfigEntry<Double,TomlElement> {
 
     @Override
     public Double deserialize(TomlElement serialized){
-        return serialized.isDouble() ? serialized.getAsDouble() : null;
+        return serialized.isInteger() ? (Double)(double)serialized.getAsInteger()
+            : serialized.isLong() ? (Double)(double)serialized.getAsLong()
+            : serialized.isDouble() ? (Double)serialized.getAsDouble() : null;
     }
 
     @Override
