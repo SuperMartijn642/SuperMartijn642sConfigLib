@@ -1,3 +1,5 @@
+import java.util.regex.Pattern
+
 plugins {
     id "fabric-loom" version "1.1-SNAPSHOT"
     id "com.matthewprenger.cursegradle" version "1.4.0"
@@ -43,11 +45,14 @@ sourceSets.main.resources { srcDir "src/generated/resources" }
 processResources {
     inputs.property "version", project.version
 
+    // Replace the mod version
+    Map<String, ?> copyProperties = project.properties.clone() as Map<String, ?>
+    if ((copyProperties.mod_version as String).matches("[^.0-9]")) {
+        int index = Pattern.compile("[^.0-9]").matcher(copyProperties.mod_version as String).start()
+        copyProperties.mod_version = copyProperties.mod_version.substring(0, index) + "+" + copyProperties.mod_version.substring(index)
+    }
+
     filesMatching(["fabric.mod.json", "modid.mixins.json", "pack.mcmeta"]) {
-        Map<String, ?> copyProperties = project.properties.clone() as Map<String, ?>
-        String modVersion = project.properties.mod_version
-        if (Character.isAlphabetic(modVersion.charAt(modVersion.length() - 1) as int))
-            copyProperties.mod_version = modVersion.substring(0, modVersion.length() - 1) + "+" + modVersion.chars[-1]
         expand copyProperties
     }
 
