@@ -4,11 +4,13 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +33,7 @@ public class ConfigLib implements ModInitializer {
 
     public ConfigLib(){
         ServerLifecycleEvents.SERVER_STARTING.register(server -> onLoadGame());
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onPlayerJoinServer(sender));
+        ServerConfigurationConnectionEvents.CONFIGURE.register(ConfigLib::onPlayerJoinServer);
     }
 
     @Override
@@ -72,15 +74,15 @@ public class ConfigLib implements ModInitializer {
         CONFIGS.forEach(ModConfig::onLeaveGame);
     }
 
-    protected static void onPlayerJoinServer(PacketSender sender){
-        sendSyncConfigPackets(sender);
+    protected static void onPlayerJoinServer(ServerConfigurationPacketListenerImpl handler, MinecraftServer server){
+        sendSyncConfigPackets(handler);
     }
 
-    private static void sendSyncConfigPackets(PacketSender sender){
+    private static void sendSyncConfigPackets(ServerConfigurationPacketListenerImpl handler){
         for(ModConfig<?> config : SYNCABLE_CONFIGS){
             FriendlyByteBuf buffer = createSyncedEntriesPacket(config);
             if(buffer != null)
-                sender.sendPacket(CHANNEL_ID, buffer);
+                ServerConfigurationNetworking.send(handler, CHANNEL_ID, buffer);
         }
     }
 
