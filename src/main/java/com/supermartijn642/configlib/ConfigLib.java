@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModList;
@@ -13,14 +14,15 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.network.SimpleChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -41,7 +43,7 @@ public class ConfigLib {
 
     public ConfigLib(){
         // Allow connection if there are no syncable configs or if the server has the same mod version
-        ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(ConfigLib::getModVersion, (remoteVersion, isFromServer) -> canConnectWith(remoteVersion)));
+        ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(ConfigLib::getModVersion, (remoteVersion, isFromServer) -> canConnectWith(remoteVersion.hashCode())));
 
         // Register event listeners
         MinecraftForge.EVENT_BUS.addListener((Consumer<ServerAboutToStartEvent>)e -> onLoadGame());
@@ -52,8 +54,15 @@ public class ConfigLib {
         if(isClientEnvironment())
             ConfigLibClient.registerEventListeners();
 
-        channel = NetworkRegistry.newSimpleChannel(CHANNEL_ID, ConfigLib::getModVersion, ConfigLib::canConnectWith, ConfigLib::canConnectWith);
-        channel.registerMessage(0, ConfigSyncPacket.class, ConfigLib::createSyncedEntriesPacket, buffer -> handleSyncConfigPacket(buffer), (packet, context) -> context.get().setPacketHandled(true));
+        channel = ChannelBuilder.named(CHANNEL_ID)
+            .networkProtocolVersion(ConfigLib.getModVersion().hashCode())
+            .acceptedVersions((status, version) -> ConfigLib.canConnectWith(version))
+            .simpleChannel();
+        channel.messageBuilder(ConfigSyncPacket.class, 0)
+            .encoder(ConfigLib::createSyncedEntriesPacket)
+            .decoder(ConfigLib::handleSyncConfigPacket)
+            .consumerNetworkThread((BiConsumer<ConfigSyncPacket,CustomPayloadEvent.Context>)(packet, context) -> context.setPacketHandled(true))
+            .add();
     }
 
     public static boolean isClientEnvironment(){
@@ -68,8 +77,8 @@ public class ConfigLib {
         return ModList.get().getModContainerById("supermartijn642configlib").orElseThrow().getModInfo().getVersion().toString();
     }
 
-    public static boolean canConnectWith(String remoteVersion){
-        return SYNCABLE_CONFIGS.isEmpty() || getModVersion().equals(remoteVersion);
+    public static boolean canConnectWith(int remoteVersion){
+        return SYNCABLE_CONFIGS.isEmpty() || getModVersion().hashCode() == remoteVersion;
     }
 
     public static File getConfigFolder(){
@@ -104,7 +113,7 @@ public class ConfigLib {
 
     private static void sendSyncConfigPackets(ServerPlayer sender){
         for(ModConfig<?> config : SYNCABLE_CONFIGS){
-            channel.send(PacketDistributor.PLAYER.with(() -> sender), new ConfigSyncPacket(config));
+            channel.send(new ConfigSyncPacket(config), PacketDistributor.PLAYER.with(sender));
         }
     }
 
