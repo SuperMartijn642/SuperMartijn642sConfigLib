@@ -1,9 +1,9 @@
 package com.supermartijn642.configlib.example;
 
-import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
 
 /**
  * Created 1/21/2021 by SuperMartijn642
