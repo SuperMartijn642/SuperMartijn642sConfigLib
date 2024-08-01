@@ -50,6 +50,7 @@ public class TomlStringConfigEntry extends BaseConfigEntry<String,TomlElement> {
         if(length > this.maxLength)
             return null;
         byte[] bytes = new byte[length];
+        buffer.get(bytes);  // Read the bytes from the buffer into the byte array
         return new String(bytes, StandardCharsets.UTF_8);
     }
 }

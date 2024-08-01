@@ -52,6 +52,7 @@ public class JsonStringConfigEntry extends BaseConfigEntry<String,JsonElement> {
         if(length > this.maxLength)
             return null;
         byte[] bytes = new byte[length];
+        buffer.get(bytes);  // Read the bytes from the buffer into the byte array
         return new String(bytes, StandardCharsets.UTF_8);
     }
 }

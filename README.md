@@ -25,6 +25,8 @@ For integer and double values a minimum and maximum value are also required.
    Supplier<Double> doubleValue = builder.define( "doubleValue", 0.5, 0, 1);
 
    Supplier<ExampleEnum> enumValue = builder.define( "enumValue", ExampleEnum.VALUE_1 );
+
+   Supplier<String> stringValue = builder.define( "stringValue", "exampleValue", 1, 20 );
 ```
 A comment can be added to a value by calling `ModConfigBuilder#comment(String)` before defining the value.
 ```java

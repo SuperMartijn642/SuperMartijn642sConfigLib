@@ -18,6 +18,7 @@ public class ExampleModConfig {
     public static final Supplier<Integer> integerValue;
     public static final Supplier<Double> doubleValue;
     public static final Supplier<ExampleEnum> enumValue;
+    public static final Supplier<String> stringValue;
 
     public static final Supplier<Boolean> notReloadedValue;
     public static final Supplier<Boolean> notSynchronizedValue;
@@ -37,7 +38,8 @@ public class ExampleModConfig {
         doubleValue = builder.comment("this is a double value between 0.0 and 1.0").define("doubleValue", 0.5, 0, 1);
         // an enum value
         enumValue = builder.comment("this is an enum value of type ExampleEnum").define("enumValue", ExampleEnum.DOGS);
-
+        // a string value
+        stringValue = builder.comment("this is a string value with min length 1 and max length 20").define("stringValue", "defaultValue", 1, 20);
 
         // values are reloaded between world loads by default, to only load a value at launch use ModConfigBuilder#gameRestart()
         notReloadedValue = builder.gameRestart().comment("this value is only reloaded when Minecraft launches").define("notReloadedValue", true);
