@@ -111,6 +111,9 @@ gradle.taskGraph.whenReady {
     }
 }
 
+// Force the jar to be reobfuscated
+jar.finalizedBy('reobfJar')
+
 publishMods {
     file = jar.archiveFile
     displayName = "${mod_name} ${mod_version} for Forge ${minecraft_suffix.substring(2)}"
