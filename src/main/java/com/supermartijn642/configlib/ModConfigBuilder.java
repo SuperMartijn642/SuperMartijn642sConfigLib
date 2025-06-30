@@ -41,6 +41,7 @@ public class ModConfigBuilder {
      */
     @Deprecated
     public ModConfigBuilder(ModConfig.Type type){
+        //noinspection removal
         this(ModLoadingContext.get().getActiveNamespace(), type);
     }
 
@@ -49,6 +50,7 @@ public class ModConfigBuilder {
      */
     @Deprecated
     public ModConfigBuilder(){
+        //noinspection removal
         this(ModLoadingContext.get().getActiveNamespace(), ModConfig.Type.COMMON);
     }
 

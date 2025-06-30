@@ -4,14 +4,13 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.network.ChannelBuilder;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Created 7/7/2020 by SuperMartijn642
@@ -41,13 +39,13 @@ public class ConfigLib {
     private static final List<ModConfig<?>> SYNCABLE_CONFIGS = new ArrayList<>();
     private static final Map<String,ModConfig<?>> SYNCABLE_CONFIGS_BY_IDENTIFIER = new HashMap<>();
 
-    public ConfigLib(){
+    public ConfigLib(FMLJavaModLoadingContext context){
         // Allow connection if there are no syncable configs or if the server has the same mod version
-        ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(ConfigLib::getModVersion, (remoteVersion, isFromServer) -> canConnectWith(remoteVersion.hashCode())));
+        context.registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(ConfigLib::getModVersion, (remoteVersion, isFromServer) -> canConnectWith(remoteVersion.hashCode())));
 
         // Register event listeners
-        MinecraftForge.EVENT_BUS.addListener((Consumer<ServerAboutToStartEvent>)e -> onLoadGame());
-        MinecraftForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerLoggedInEvent>)e -> {
+        ServerAboutToStartEvent.BUS.addListener(e -> onLoadGame());
+        PlayerEvent.PlayerLoggedInEvent.BUS.addListener(e -> {
             if(e.getEntity() instanceof ServerPlayer)
                 onPlayerJoinServer((ServerPlayer)e.getEntity());
         });
@@ -61,7 +59,7 @@ public class ConfigLib {
         channel.messageBuilder(ConfigSyncPacket.class, 0)
             .encoder(ConfigLib::createSyncedEntriesPacket)
             .decoder(ConfigLib::handleSyncConfigPacket)
-            .consumerNetworkThread((BiConsumer<ConfigSyncPacket,CustomPayloadEvent.Context>)(packet, context) -> context.setPacketHandled(true))
+            .consumerNetworkThread((BiConsumer<ConfigSyncPacket,CustomPayloadEvent.Context>)(packet, c) -> c.setPacketHandled(true))
             .add();
     }
 
