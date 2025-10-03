@@ -5,7 +5,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.network.ConfigurationTask;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
@@ -73,11 +72,11 @@ public class ConfigLib {
     }
 
     public static boolean isClientEnvironment(){
-        return FMLEnvironment.dist == Dist.CLIENT;
+        return FMLEnvironment.getDist().isClient();
     }
 
     public static boolean isServerEnvironment(){
-        return FMLEnvironment.dist == Dist.DEDICATED_SERVER;
+        return FMLEnvironment.getDist().isDedicatedServer();
     }
 
     public static String getModVersion(){
