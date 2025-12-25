@@ -3,7 +3,7 @@ package com.supermartijn642.configlib;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.network.ConfigurationTask;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
@@ -51,7 +51,7 @@ public class ConfigLib {
                     (p, c) -> {}
                 )
         );
-        ConfigurationTask.Type type = new ConfigurationTask.Type(ResourceLocation.fromNamespaceAndPath("supermartijn642configlib", "sync_configs"));
+        ConfigurationTask.Type type = new ConfigurationTask.Type(Identifier.fromNamespaceAndPath("supermartijn642configlib", "sync_configs"));
         eventBus.addListener((Consumer<RegisterConfigurationTasksEvent>)e -> {
             ServerConfigurationPacketListener listener = e.getListener();
             if(listener.hasChannel(ConfigSyncPacket.TYPE)){
