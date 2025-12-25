@@ -1,7 +1,7 @@
 package com.supermartijn642.configlib;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -31,7 +31,7 @@ public class ConfigLib {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("configlib");
 
-    protected static final ResourceLocation CHANNEL_ID = ResourceLocation.fromNamespaceAndPath("supermartijn642configlib", "sync_configs");
+    protected static final Identifier CHANNEL_ID = Identifier.fromNamespaceAndPath("supermartijn642configlib", "sync_configs");
     private static SimpleChannel channel;
 
     private static final List<ModConfig<?>> CONFIGS = new ArrayList<>();
