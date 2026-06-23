@@ -241,14 +241,4 @@ public class ModConfig<S> {
             return this.syncedValue != null ? this.syncedValue : this.value;
         }
     }
-
-    /**
-     * Just needed for backwards compatibility. Don't use this!
-     */
-    @Deprecated
-    public enum Type {
-        CLIENT,
-        SERVER,
-        COMMON
-    }
 }
