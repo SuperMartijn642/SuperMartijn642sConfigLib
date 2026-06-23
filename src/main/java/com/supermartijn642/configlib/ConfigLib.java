@@ -31,7 +31,7 @@ public class ConfigLib implements ModInitializer {
     public ConfigLib(){
         ServerLifecycleEvents.SERVER_STARTING.register(server -> onLoadGame());
         ServerConfigurationConnectionEvents.CONFIGURE.register(ConfigLib::onPlayerJoinServer);
-        PayloadTypeRegistry.configurationS2C().register(ConfigSyncPacket.TYPE, ConfigSyncPacket.CODEC);
+        PayloadTypeRegistry.clientboundConfiguration().register(ConfigSyncPacket.TYPE, ConfigSyncPacket.CODEC);
     }
 
     @Override
