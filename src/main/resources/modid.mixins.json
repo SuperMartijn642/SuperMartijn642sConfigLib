@@ -1,0 +1,46 @@
+{
+  "required": true,
+  "minVersion": "${mixin_minimum_version}",
+  "package": "${mod_package}.${mixin_package}",
+  "compatibilityLevel": "${mixin_compatibility_level}",
+  "mixins": [
+    "forge.DatagenModLoaderMixin"
+  ],
+  "client": [
+    "AgeableMobMixin",
+    "AtlasConfigMixin",
+    "BakedQuadMaterialInfoMixin",
+    "BlockFeatureRendererMixin",
+    "BlockModelLighterMixin",
+    "BufferSourceMixin",
+    "CuboidItemModelWrapperMixin",
+    "CuboidModelMixin",
+    "CuboidModelDeserializerMixin",
+    "EntityMixin",
+    "EntityModelSetMixin",
+    "EntityRendererMixin",
+    "EntityRenderersMixin",
+    "EntityRenderStateMixin",
+    "IntermediaryFormatMixin",
+    "ItemFeatureRendererMixin",
+    "ModelBakeryMixin",
+    "ModelBlockRendererMixin",
+    "ModelFeatureRendererMixin",
+    "ModelManagerMixin",
+    "MultiPartModelMixin",
+    "OptionsMixin",
+    "OutlineBufferSourceMixin",
+    "PackEntryMixin",
+    "PackMixin",
+    "SingleVariantMixin",
+    "SpriteLoaderMixin",
+    "SpriteResourceLoaderMixin",
+    "TerrainParticleMixin",
+    "TextureAtlasSpriteMixin",
+    "WeightedVariantsMixin"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

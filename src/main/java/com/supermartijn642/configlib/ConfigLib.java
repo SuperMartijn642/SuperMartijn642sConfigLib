@@ -72,7 +72,7 @@ public class ConfigLib {
     }
 
     public static String getModVersion(){
-        return ModList.get().getModContainerById("supermartijn642configlib").orElseThrow().getModInfo().getVersion().toString();
+        return ModList.getModContainerById("supermartijn642configlib").orElseThrow().getModInfo().getVersion().toString();
     }
 
     public static boolean canConnectWith(int remoteVersion){
