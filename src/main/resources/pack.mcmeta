@@ -1,9 +1,9 @@
 {
     "pack": {
         "description": "${mod_name}'s resources",
-        "pack_format": 4,
-        "supported_formats": [4, 1000],
-        "min_format": 4,
+        "pack_format": 15,
+        "supported_formats": [15, 1000],
+        "min_format": 15,
         "max_format": 1000
     }
 }
