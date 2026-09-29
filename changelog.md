@@ -1,3 +1,6 @@
+### SuperMartijn642's Config Library 1.1.8a
+- Fixed "Error reading pack metadata" warning
+
 ## Update to Minecraft 26.1
 
 ### SuperMartijn642's Config Library 1.1.8
